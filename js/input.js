@@ -1,5 +1,5 @@
 $(document).ready(function(){
-	console.log("input.js loaded");
+	//console.log("input.js loaded");
 	$(document).keydown(function(event){
 		var keycode = event.which;
 		if (keycode == 122 || keycode == 123 || keycode === 116) {
