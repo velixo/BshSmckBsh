@@ -6,7 +6,7 @@ function start() {
 }
 
 /** Called every new frame
- * @param {number} deltatime The time since the last frame was rendered
+ * @param {number} deltatime The time since the last frame was rendered, in milliseconds.
  */
 function update(deltatime) {
 	// Update logic

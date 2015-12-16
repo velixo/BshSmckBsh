@@ -9,12 +9,12 @@ $(document).ready(function(){
 	// Update canvas size upon resize
 	$(window).resize(function(){
 		canvasElement.width = window.innerWidth;
-        canvasElement.height = window.innerHeight;
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+		canvasElement.height = window.innerHeight;
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
 
-        console.log("Canvas width: " + canvas.width);
-        console.log("Canvas height: " + canvas.height);
+		//console.log("Canvas width: " + canvas.width);
+		//console.log("Canvas height: " + canvas.height);
 	});
 
 	_onLoad();
@@ -26,6 +26,7 @@ function _renderFrame(timestamp) {
 	var deltatime = timestamp - _timeSinceLastRender;
 	_timeSinceLastRender = timestamp;
 
+	canvas.clearRect(0, 0, canvas.width, canvas.height);
 	update(deltatime);
 
 	window.requestAnimationFrame(_renderFrame);
