@@ -33,8 +33,8 @@ function Entity(x, y) {
 	this.x = x;
 	this.y = y;
 
-	this.distanceTo = function() {
-		//implement
+	this.distVec = function(oEnt) {
+		return {(this.x - oEnt.x), (this.y - oEnt.y)};
 	}
 }
 
