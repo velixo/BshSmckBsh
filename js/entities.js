@@ -29,9 +29,10 @@ function World() {
 	}
 }
 
-function Entity(x, y) {
+function Entity(x, y, name) {
 	this.x = x;
 	this.y = y;
+	this.name = evalArg(name, "entity")
 }
 
 function CollisionInfo(collidedObj, collidedX, collidedY, collidedEdge) {
@@ -39,31 +40,35 @@ function CollisionInfo(collidedObj, collidedX, collidedY, collidedEdge) {
 	this.collidedX = collidedX;
 	this.collidedY = collidedY;
 	this.collidedEdge = collidedEdge;
+	this.toString = function() {
+		return "[CollisionInfo: " + collidedObj.name + ", " + collidedX + ", "
+								+ collidedY + ", " + collidedEdge + "]"
+	}
 }
 var NO_COLLISION = new CollisionInfo(undefined, NaN, NaN, "");
 
-function Rectangle(x, y, width, height) {
-	Entity.call(this, x, y);
+function Rectangle(x, y, width, height, name) {
+	Entity.call(this, x, y, name);
 	this.width = width;
 	this.height = height;
 
 	this.getCollisionInfo = function(other) {
-		var rightOfLeftEdge = other.x + other.width >= this.x;
-		var leftOfRightEdge = other.x <= this.x + this.width;
-		var collision = rightOfLeftEdge && leftOfRightEdge;
-		if (collision) {
-			if (leftOfRightEdge) {
-				return new CollisionInfo(this, this.x + this.width, NaN, "right");
-			} else if (rightOfLeftEdge) {
-				return new CollisionInfo(this, this.x, NaN, "left");
-			}
+		var lEdge = this.x;
+		var	rEdge = this.x + this.width;
+		var otherLEdge = other.x;
+		var	otherREdge = other.x + other.width;
+		if (otherREdge >= lEdge && otherLEdge <= lEdge) {
+			return new CollisionInfo(this, this.x - other.width, NaN, "left");
+		} else if (otherLEdge <= rEdge && otherREdge >= rEdge) {
+			return new CollisionInfo(this, this.x + this.width, NaN, "right");
+		} else {
+			return new CollisionInfo(this, NaN, NaN, "inside");
 		}
-		return NO_COLLISION;
 	}
 }
 
 function Player(x, y, height, world) {
-	Rectangle.call(this, x, y, height, height);
+	Rectangle.call(this, x, y, height, height, "player");
 	var xdir = 0;
 	var xvel = 0.2;
 	var yvel = 0.2;
@@ -76,21 +81,23 @@ function Player(x, y, height, world) {
 	this._updatePos = function(deltatime) {
 		var collInfo = world.horizontalCollision(this);
 		if (typeof collInfo.collidedObj !== 'undefined') {
-			console.log('Collision with ' + collidedObj.name);
+			console.log(collInfo.toString());
 		}
 
 		xdir = 0;
 		if (keyPressed.D) {
+			console.log("moving right x=" + this.x);
 			xdir += 1;
 		}
 		if (keyPressed.A) {
+			console.log("moving left x=" + this.x);
 			xdir -= 1;
 		}
 
 		if (xdir === 1 && collInfo.collidedEdge === "left" ||
 			xdir === -1 && collInfo.collidedEdge === "right") {
 			this.x = collInfo.collidedX;
-			console.log("Player collided!")
+			console.log("Player collided! x=" + this.x)
 		} else {
 			this.x += xdir * xvel * deltatime;
 		}
@@ -100,7 +107,7 @@ function Player(x, y, height, world) {
 //======== Barriers ========
 
 function Floor(thickness) {
-	Rectangle.call(this, 0, canvas.height - thickness, canvas.width, thickness);
+	Rectangle.call(this, 0, canvas.height - thickness, canvas.width, thickness, "floor");
 	this.name = 'floor';
 
 	this.verticalCollision = function(player) {
@@ -122,12 +129,11 @@ function Floor(thickness) {
 
 function Wall(alignment, thickness) {
 	this.alignment = alignment;
-	this.name = alignment;
 
 	if (alignment === 'left') {
-		Rectangle.call(this, 0, 0, thickness, canvas.height);
+		Rectangle.call(this, 0, 0, thickness, canvas.height, alignment + " wall");
 	} else if (alignment === 'right') {
-		Rectangle.call(this, canvas.width - thickness, 0, thickness, canvas.height);
+		Rectangle.call(this, canvas.width - thickness, 0, thickness, canvas.height, alignment + " wall");
 	}
 
 	this.verticalCollision = function(player) {
@@ -155,6 +161,3 @@ function Wall(alignment, thickness) {
 	world.add(this);
 }
 
-function _distanceTo(x, y, obj) {
-
-}
