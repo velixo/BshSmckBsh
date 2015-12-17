@@ -29,12 +29,24 @@ function World() {
 	}
 }
 
+function Entity(x, y) {
+	this.x = x;
+	this.y = y;
+
+	this.distanceTo = function() {
+		//implement
+	}
+}
+
+function Rectangle(x, y, width, height) {
+	Entity.call(this, x, y);
+	this.width = width;
+	this.height = height;
+}
+
 
 function Floor(thickness) {
-	this.x = 0;
-	this.y = canvas.height - thickness;
-	this.width = canvas.width;
-	this.height = thickness;
+	Rectangle.call(this, 0, canvas.height - thickness, canvas.width, thickness);
 	this.name = 'floor';
 
 	this.verticalCollision = function(player) {
@@ -56,17 +68,13 @@ function Floor(thickness) {
 
 function Wall(alignment, thickness) {
 	this.alignment = alignment;
+	this.name = alignment;
 
 	if (alignment === 'left') {
-		this.x = 0;
+		Rectangle.call(this, 0, 0, thickness, canvas.height);
 	} else if (alignment === 'right') {
-		this.x = canvas.width - thickness;
+		Rectangle.call(this, canvas.width - thickness, 0, thickness, canvas.height);
 	}
-
-	this.y = 0;
-	this.width = thickness;
-	this.height = canvas.height;
-	this.name = alignment;
 
 	this.verticalCollision = function(player) {
 		return false;
@@ -91,4 +99,8 @@ function Wall(alignment, thickness) {
 	}
 
 	world.add(this);
+}
+
+function _distanceTo(x, y, obj) {
+
 }

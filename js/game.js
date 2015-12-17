@@ -31,8 +31,7 @@ function update(deltatime) {
 
 
 function Player(x, y, height, world) {
-	this.x = x;
-	this.y = y;
+	Entity.call(x, y);
 	this.height = height;
 	this.width = height;
 	this.xdir = 0;
