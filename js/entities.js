@@ -57,10 +57,33 @@ function Rectangle(x, y, width, height, name) {
 		var	rEdge = this.x + this.width;
 		var otherLEdge = other.x;
 		var	otherREdge = other.x + other.width;
+
+		var tEdge = this.y;
+		var	bEdge = this.y + this.height;
+		var otherTEdge = other.y;
+		var	otherBEdge = other.y + other.height;
+
+		var collXEdge;
+		var collYEdge;
+		var collEdgeStr = "";
 		if (otherREdge >= lEdge && otherLEdge <= lEdge) {
-			return new CollisionInfo(this, this.x - other.width, NaN, "left");
+			collXEdge = this.x - other.width;
+			collEdgeStr += 'l';
 		} else if (otherLEdge <= rEdge && otherREdge >= rEdge) {
-			return new CollisionInfo(this, this.x + this.width, NaN, "right");
+			collXEdge = this.x + this.width;
+			collEdgeStr += 'r';
+		}
+
+		if (otherBEdge >= tEdge && otherTEdge <= tEdge) {
+			collYEdge = this.y - other.height;
+			collEdgeStr += 't';
+		} else if (otherTEdge <= bEdge && otherBEdge >= bEdge) {
+			collYEdge = this.y + this.height;
+			collEdgeStr += 'b';
+		}
+
+		if (collEdgeStr.length > 0) {
+			return new CollisionInfo(this, collXEdge, collYEdge, collEdgeStr);
 		} else {
 			return new CollisionInfo(this, NaN, NaN, "inside");
 		}
@@ -86,16 +109,14 @@ function Player(x, y, height, world) {
 
 		xdir = 0;
 		if (keyPressed.D) {
-			console.log("moving right x=" + this.x);
 			xdir += 1;
 		}
 		if (keyPressed.A) {
-			console.log("moving left x=" + this.x);
 			xdir -= 1;
 		}
 
-		if (xdir === 1 && collInfo.collidedEdge === "left" ||
-			xdir === -1 && collInfo.collidedEdge === "right") {
+		if (xdir === 1 && collInfo.collidedEdge.indexOf('l') !== -1 ||
+			xdir === -1 && collInfo.collidedEdge.indexOf('r') !== -1) {
 			this.x = collInfo.collidedX;
 			console.log("Player collided! x=" + this.x)
 		} else {
