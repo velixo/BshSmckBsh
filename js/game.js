@@ -28,33 +28,3 @@ function update(deltatime) {
 	drawRect(rwall.x, rwall.y, rwall.width, rwall.height);
 	drawCircle(player.x + player.width/2, player.y + player.width/2, player.width/2);
 }
-
-
-function Player(x, y, height, world) {
-	Entity.call(x, y);
-	this.height = height;
-	this.width = height;
-	this.xdir = 0;
-	var xvel = 0.2;
-	var yvel = 0.2;
-	var world = world;
-
-	this.update = function(deltatime) {
-		updateDir();
-		this.x += xdir * xvel * deltatime;
-		var collidedObj = world.horizontalCollision(this);
-		if (typeof collidedObj !== 'undefined') {
-			console.log('Collision with ' + collidedObj.name);
-		}
-	};
-
-	var updateDir = function() {
-		this.xdir = 0;
-		if(keyPressed.D) {
-			this.xdir += 1;
-		}
-		if(keyPressed.A) {
-			this.xdir -= 1;
-		}
-	}
-}
