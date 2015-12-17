@@ -67,7 +67,7 @@ function Rectangle(x, y, width, height, name) {
 		var collYEdge;
 		var collEdgeStr = "";
 		if (otherREdge >= lEdge && otherLEdge <= lEdge) {
-			collXEdge = this.x - other.width;
+			collXEdge = this.x;
 			collEdgeStr += 'l';
 		} else if (otherLEdge <= rEdge && otherREdge >= rEdge) {
 			collXEdge = this.x + this.width;
@@ -115,10 +115,10 @@ function Player(x, y, height, world) {
 			xdir -= 1;
 		}
 
-		if (xdir === 1 && collInfo.collidedEdge.indexOf('l') !== -1 ||
-			xdir === -1 && collInfo.collidedEdge.indexOf('r') !== -1) {
+		if (xdir === 1 && collInfo.collidedEdge.indexOf('l') !== -1) {
+			this.x = collInfo.collidedX - this.width;
+		} else if (xdir === -1 && collInfo.collidedEdge.indexOf('r') !== -1) {
 			this.x = collInfo.collidedX;
-			console.log("Player collided! x=" + this.x)
 		} else {
 			this.x += xdir * xvel * deltatime;
 		}
