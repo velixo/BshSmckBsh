@@ -13,7 +13,7 @@ function start() {
 	floor = new Floor(30);
 	lwall = new Wall('left', 30);
 	rwall = new Wall('right', 30);
-	player = new Player(canvas.width / 2, canvas.height - 80, 40, world);
+	player = new Player(canvas.width / 2, canvas.height - 200, 40, world);
 }
 
 /** Called every new frame

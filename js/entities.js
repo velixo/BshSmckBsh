@@ -7,11 +7,12 @@ function World() {
 	};
 
 	this.checkCollision = function(player) {
+		var collisions = [];
 		for (var i = 0; i < this.obstacles.length; i++) {
 			var collInfo = this.obstacles[i].getCollisionInfo(player);
-			if (collInfo !== null) return collInfo;
+			if (collInfo !== null) collisions.push(collInfo);
 		}
-		return null;
+		return collisions;
 	}
 
 	this.update = function() {
@@ -31,15 +32,25 @@ function Player(x, y, height, world) {
 	Rectangle.call(this, x, y, height, height, "player");
 	var xdir = 0;
 	var xvel = 0.2;
-	var yvel = 0.2;
+	var yvel = 0;
+	var yvelMultiplier = 0.02;
+	var yvelThreshold = 15;
 	var world = world;
+
+	var lBlockedX = undefined;
+	var rBlockedX = undefined;
+	var tBlockedY = undefined;
+	var bBlockedY = undefined;
+	var touchingSurface = false;
 
 	this.update = function(deltatime) {
 		this._updatePos(deltatime);
 	};
 
 	this._updatePos = function(deltatime) {
-		var collInfo = world.checkCollision(this);
+		touchingSurface = lBlockedX !== undefined ||
+						rBlockedX !== undefined ||
+						tBlockedY !== undefined;
 
 		xdir = 0;
 		if (keyPressed.D) {
@@ -48,13 +59,77 @@ function Player(x, y, height, world) {
 		if (keyPressed.A) {
 			xdir -= 1;
 		}
+		if (keyPressed.W && touchingSurface) {
+			yvel = -0.5;
+		}
 
-		if (collInfo !== null && xdir === 1 && collInfo.collidedEdge.indexOf('l') !== -1) {
-			this.x = collInfo.collidedX - this.width;
-		} else if (collInfo !== null && xdir === -1 && collInfo.collidedEdge.indexOf('r') !== -1) {
-			this.x = collInfo.collidedX;
+		lBlockedX = undefined;
+		rBlockedX = undefined;
+		tBlockedY = undefined;
+		bBlockedY = undefined;
+		var collisions = world.checkCollision(this);
+		for (var i = 0; i < collisions.length; i++) {
+			this._handleCollisionEvent(collisions[i], deltatime);
+		}
+
+		if (lBlockedX !== undefined) {
+			this.x = lBlockedX - this.width;
+			xDir = 0;
+		}
+		if (rBlockedX !== undefined) {
+			this.x = rBlockedX;
+			xDir = 0;
+		}
+		this.x += xdir * xvel * deltatime;
+
+		if (tBlockedY !== undefined && yvel > 0) {
+			this.y = tBlockedY - this.height;
+			yvel = 0;
+		} else if (bBlockedY !== undefined && yvel < 0) {
+			this.y = bBlockedY;
+			yvel += yvelMultiplier;
 		} else {
-			this.x += xdir * xvel * deltatime;
+			if (yvel >= yvelThreshold) {
+				yvel = yvelThreshold;
+			} else {
+				yvel += yvelMultiplier;
+			}
+			this.y += yvel * deltatime;
+		}
+	}
+
+	this._handleCollisionEvent = function(collInfo, deltatime) {
+		var collEdgeStr = collInfo.collidedEdge;
+		if (collEdgeStr.indexOf('l') !== -1) {
+			if (lBlockedX !== undefined) {
+				lBlockedX = (lBlockedX < collInfo.collidedX) ? collInfo.collidedX : lBlockedX;
+			} else {
+				lBlockedX = collInfo.collidedX;
+			}
+		}
+
+		if (collEdgeStr.indexOf('r') !== -1) {
+			if (rBlockedX !== undefined) {
+				rBlockedX = (rBlockedX > collInfo.collidedX) ? collInfo.collidedX : rBlockedX;
+			} else {
+				rBlockedX = collInfo.collidedX;
+			}
+		}
+
+		if (collEdgeStr.indexOf('t') !== -1) {
+			if (tBlockedY !== undefined) {
+				tBlockedY = (tBlockedY > collInfo.collidedY) ? collInfo.collidedY : tBlockedY;
+			} else {
+				tBlockedY = collInfo.collidedY;
+			}
+		}
+
+		if (collEdgeStr.indexOf('b') !== -1) {
+			if (bBlockedY !== undefined) {
+				bBlockedY = (bBlockedY < collInfo.collidedY) ? collInfo.collidedY : bBlockedY;
+			} else {
+				bBlockedY = collInfo.collidedY;
+			}
 		}
 	}
 }
