@@ -6,6 +6,7 @@ var lwall;
 var rwall;
 var platform1;
 var platform2;
+var platform3;
 
 var player;
 
@@ -18,6 +19,7 @@ function start() {
 	rwall = new Wall('right', 30);
 	platform1 = new Rectangle(250, 600, 300, 40, "rectbroad");
 	platform2 = new Rectangle(700, 150, 100, 600, "recttall");
+	platform3 = new Rectangle(350, 800, 300, 40, "rectbroadunder");
 	player = new Player(canvas.width / 2, 200, 40, world);
 }
 
@@ -33,5 +35,6 @@ function update(deltatime) {
 	rwall.draw();
 	platform1.draw();
 	platform2.draw();
+	platform3.draw();
 	drawCircle(player.x + player.width/2, player.y + player.width/2, player.width/2);
 }
