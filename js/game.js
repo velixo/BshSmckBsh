@@ -19,7 +19,7 @@ function start() {
 	rwall = new Wall('right', 30);
 	platform1 = new Rectangle(250, 600, 300, 40, "rectbroad");
 	platform2 = new Rectangle(700, 150, 100, 600, "recttall");
-	platform3 = new Rectangle(350, 800, 300, 40, "rectbroadunder");
+	platform3 = new Rectangle(350, 800, 400, 40, "rectbroadunder");
 	player = new Player(canvas.width / 2, 200, 40, world);
 }
 
