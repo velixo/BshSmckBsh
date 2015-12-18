@@ -4,7 +4,8 @@ var world;
 var floor;
 var lwall;
 var rwall;
-var platform;
+var platform1;
+var platform2;
 
 var player;
 
@@ -15,7 +16,8 @@ function start() {
 	floor = new Floor(30);
 	lwall = new Wall('left', 30);
 	rwall = new Wall('right', 30);
-	platform = new Rectangle(250, 500, 300, 40, "rect");
+	platform1 = new Rectangle(250, 600, 300, 40, "rectbroad");
+	platform2 = new Rectangle(700, 150, 100, 600, "recttall");
 	player = new Player(canvas.width / 2, 200, 40, world);
 }
 
@@ -26,9 +28,10 @@ function update(deltatime) {
 	world.update();
 	player.update(deltatime);
 
-	drawRect(floor.x, floor.y, floor.width, floor.height);
-	drawRect(lwall.x, lwall.y, lwall.width, lwall.height);
-	drawRect(rwall.x, rwall.y, rwall.width, rwall.height);
-	drawRect(platform.x, platform.y, platform.width, platform.height);
+	floor.draw();
+	lwall.draw();
+	rwall.draw();
+	platform1.draw();
+	platform2.draw();
 	drawCircle(player.x + player.width/2, player.y + player.width/2, player.width/2);
 }

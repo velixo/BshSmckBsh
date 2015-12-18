@@ -28,6 +28,10 @@ Rectangle.prototype.update = function() {
 	//implement
 }
 
+Rectangle.prototype.draw = function() {
+	drawRect(this.x, this.y, this.width, this.height);
+}
+
 Rectangle.prototype.getCollisionInfo = function(other) {
 	var edges = {
 		lEdge: this.x,
