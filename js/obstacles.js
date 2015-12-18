@@ -102,7 +102,14 @@ Rectangle.prototype._touchingX = function(edges) {
 }
 
 Rectangle.prototype._touchingY = function(edges) {
-	return edges.otherbEdge <= edges.tEdge && edges.otherTEdge >= edges.bEdge;
+	var t = edges.tEdge;
+	var b = edges.bEdge;
+	var ot = edges.otherTEdge;
+	var ob = edges.otherBEdge;
+	var crossingTop = (ob >= t) && !(ot >= t) && (ot <= b) && (ob <= b);
+	var crossingBottom = (ob >= t) && (ot >= t) && (ot <= b) && !(ob <= b);
+	var inside = (ob >= t) && (ot >= t) && (ot <= b) && (ob <= b);
+	return (crossingTop || crossingBottom || inside);
 }
 
 Rectangle.prototype._checkIfOtherIsInside = function(edges) {
