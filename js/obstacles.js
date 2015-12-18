@@ -16,11 +16,16 @@ function CollisionInfo(collidedObj, collidedX, collidedY, collidedEdge) {
 	}
 }
 
-function Rectangle(x, y, width, height, name) {
+function Rectangle(x, y, width, height, name, includeInWorld) {
 	Entity.call(this, x, y, name);
 	this.width = width;
 	this.height = height;
+	includeInWorld = evalArg(includeInWorld, true);
+	if (includeInWorld) world.add(this);
+}
 
+Rectangle.prototype.update = function() {
+	//implement
 }
 
 Rectangle.prototype.getCollisionInfo = function(other) {
@@ -32,7 +37,9 @@ Rectangle.prototype.getCollisionInfo = function(other) {
 		otherLEdge: other.x,
 		otherREdge: other.x + other.width,
 		otherTEdge: other.y,
-		otherBEdge: other.y + other.height
+		otherBEdge: other.y + other.height,
+		otherMiddleX: other.x + other.width / 2,
+		otherMiddleY: other.y + other.height / 2
 	};
 
 	var xColl = this._checkXCollision(edges);
@@ -50,10 +57,11 @@ Rectangle.prototype.getCollisionInfo = function(other) {
 
 Rectangle.prototype._checkXCollision = function(edges) {
 	var collXEdge, collXEdgeStr;
-	if (edges.otherREdge >= edges.lEdge && edges.otherLEdge <= edges.lEdge) {
+	var touchingY = this._touchingY(edges);
+	if (edges.otherREdge >= edges.lEdge && edges.otherLEdge <= edges.lEdge && touchingY) {
 		collXEdge = edges.lEdge;
 		collXEdgeStr = 'l';
-	} else if (edges.otherLEdge <= edges.rEdge && edges.otherREdge >= edges.rEdge) {
+	} else if (edges.otherLEdge <= edges.rEdge && edges.otherREdge >= edges.rEdge && touchingY) {
 		collXEdge = edges.rEdge;
 		collXEdgeStr = 'r';
 	} else {
@@ -68,10 +76,11 @@ Rectangle.prototype._checkXCollision = function(edges) {
 
 Rectangle.prototype._checkYCollision = function(edges) {
 	var collYEdge, collYEdgeStr;
-	if (edges.otherBEdge >= edges.tEdge && edges.otherTEdge <= edges.tEdge) {
+	var touchingX = this._touchingX(edges);
+	if (edges.otherBEdge >= edges.tEdge && edges.otherTEdge <= edges.tEdge && touchingX) {
 		collYEdge = edges.tEdge;
 		collYEdgeStr = 't';
-	} else if (edges.otherTEdge <= edges.bEdge && edges.otherBEdge >= edges.bEdge) {
+	} else if (edges.otherTEdge <= edges.bEdge && edges.otherBEdge >= edges.bEdge && touchingX) {
 		collYEdge = edges.bEdge;
 		collYEdgeStr = 'b';
 	} else {
@@ -82,6 +91,14 @@ Rectangle.prototype._checkYCollision = function(edges) {
 		collYEdge: collYEdge,
 		collYEdgeStr: collYEdgeStr
 	};
+}
+
+Rectangle.prototype._touchingX = function(edges) {
+	return edges.otherMiddleX >= edges.lEdge && edges.otherMiddleX <= edges.rEdge;
+}
+
+Rectangle.prototype._touchingY = function(edges) {
+	return edges.otherbEdge <= edges.tEdge && edges.otherTEdge >= edges.bEdge;
 }
 
 Rectangle.prototype._checkIfOtherIsInside = function(edges) {
@@ -96,14 +113,18 @@ function Floor(thickness) {
 	Rectangle.call(this, 0, canvas.height - thickness, canvas.width, thickness, "floor");
 	this.name = 'floor';
 
-	this.update = function() {
-		this.y = canvas.height - thickness;
-		this.width = canvas.width;
-	}
+//	this.update = function() {
+//		this.y = canvas.height - thickness;
+//		this.width = canvas.width;
+//	}
 
-	world.add(this);
+	//world.add(this);
 }
 Floor.prototype = Object.create(Rectangle.prototype);
+Floor.prototype.update = function() {
+	this.y = canvas.height - this.height;
+	this.width = canvas.width;
+}
 Floor.prototype._checkXCollision = function() {
 	return {
 		collXEdge: undefined,
@@ -123,21 +144,46 @@ function Wall(alignment, thickness) {
 		Rectangle.call(this, canvas.width - thickness, 0, thickness, canvas.height, alignment + " wall");
 	}
 
-	this.update = function() {
-		if (this.alignment === 'left') {
-			this.x = 0;
-		} else if (this.alignment === 'right') {
-			this.x = canvas.width - thickness;
-		}
-		this.height = canvas.height;
-	}
+//	this.update = function() {
+//		if (this.alignment === 'left') {
+//			this.x = 0;
+//		} else if (this.alignment === 'right') {
+//			this.x = canvas.width - thickness;
+//		}
+//		this.height = canvas.height;
+//	}
 
-	world.add(this);
+	//world.add(this);
 }
 Wall.prototype = Object.create(Rectangle.prototype);
+Wall.prototype.update = function() {
+	if (this.alignment === 'left') {
+		this.x = 0;
+	} else if (this.alignment === 'right') {
+		this.x = canvas.width - this.width;
+	}
+	this.height = canvas.height;
+}
 Wall.prototype._checkYCollision = function() {
 	return {
 		collYEdge: undefined,
 		collYEdgeStr: ''
+	};
+}
+Wall.prototype._checkXCollision = function(edges) {
+	var collXEdge, collXEdgeStr;
+	if (edges.otherREdge >= edges.lEdge && edges.otherLEdge <= edges.lEdge) {
+		collXEdge = edges.lEdge;
+		collXEdgeStr = 'l';
+	} else if (edges.otherLEdge <= edges.rEdge && edges.otherREdge >= edges.rEdge) {
+		collXEdge = edges.rEdge;
+		collXEdgeStr = 'r';
+	} else {
+		collXEdge = undefined;
+		collXEdgeStr = '';
+	}
+	return {
+		collXEdge: collXEdge,
+		collXEdgeStr: collXEdgeStr
 	};
 }

@@ -9,6 +9,7 @@ function World() {
 	this.checkCollision = function(player) {
 		var collisions = [];
 		for (var i = 0; i < this.obstacles.length; i++) {
+			console.log(this.obstacles[i]);
 			var collInfo = this.obstacles[i].getCollisionInfo(player);
 			if (collInfo !== null) collisions.push(collInfo);
 		}
@@ -29,7 +30,7 @@ function Entity(x, y, name) {
 }
 
 function Player(x, y, height, world) {
-	Rectangle.call(this, x, y, height, height, "player");
+	Rectangle.call(this, x, y, height, height, "player", false);
 	var xdir = 0;
 	var xvel = 0.2;
 	var yvel = 0;

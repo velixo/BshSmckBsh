@@ -1,6 +1,6 @@
 function drawRect(x, y, width, height, color) {
 	canvas.fillStyle = _evalArg(color, "#000");
-	canvas.fillRect(x, y, x + width, y + height);
+	canvas.fillRect(x, y, width, height);
 }
 
 function drawCircle(x, y, radius, color) {
