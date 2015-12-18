@@ -9,7 +9,6 @@ function World() {
 	this.checkCollision = function(player) {
 		var collisions = [];
 		for (var i = 0; i < this.obstacles.length; i++) {
-			console.log(this.obstacles[i]);
 			var collInfo = this.obstacles[i].getCollisionInfo(player);
 			if (collInfo !== null) collisions.push(collInfo);
 		}
@@ -34,6 +33,7 @@ function Player(x, y, height, world) {
 	var xdir = 0;
 	var xvel = 0.2;
 	var yvel = 0;
+	var xvelMultiplier = 0.4;
 	var yvelMultiplier = 0.02;
 	var yvelThreshold = 15;
 	var world = world;
@@ -49,9 +49,7 @@ function Player(x, y, height, world) {
 	};
 
 	this._updatePos = function(deltatime) {
-		touchingSurface = lBlockedX !== undefined ||
-						rBlockedX !== undefined ||
-						tBlockedY !== undefined;
+		touchingSurface = this._checkTouchingSurface(lBlockedX, rBlockedX, tBlockedY, bBlockedY)
 
 		xdir = 0;
 		if (keyPressed.D) {
@@ -62,6 +60,11 @@ function Player(x, y, height, world) {
 		}
 		if (keyPressed.W && touchingSurface) {
 			yvel = -0.5;
+			if (lBlockedX !== undefined) {
+				xvel = -xvelMultiplier * 2;
+			} else if (rBlockedX !== undefined) {
+				xvel = xvelMultiplier * 2;
+			}
 		}
 
 		lBlockedX = undefined;
@@ -73,15 +76,23 @@ function Player(x, y, height, world) {
 			this._handleCollisionEvent(collisions[i], deltatime);
 		}
 
+		touchingSurface = this._checkTouchingSurface(lBlockedX, rBlockedX, tBlockedY, bBlockedY)
 		if (lBlockedX !== undefined) {
 			this.x = lBlockedX - this.width;
-			xDir = 0;
+			if (xvel > 0) xvel = 0;
 		}
 		if (rBlockedX !== undefined) {
 			this.x = rBlockedX;
-			xDir = 0;
+			if (xvel < 0) xvel = 0;
 		}
-		this.x += xdir * xvel * deltatime;
+		if (xdir !== 0) {
+			xvel = xvelMultiplier * xdir;
+		} else if (touchingSurface) {
+			xvel *= 0.8;
+		} else {
+			xvel *= 0.9;
+		}
+		this.x += xvel * deltatime;
 
 		if (tBlockedY !== undefined && yvel > 0) {
 			this.y = tBlockedY - this.height;
@@ -132,5 +143,11 @@ function Player(x, y, height, world) {
 				bBlockedY = collInfo.collidedY;
 			}
 		}
+	}
+
+	this._checkTouchingSurface = function (lBlockedX, rBlockedX, tBlockedY, bBlockedY) {
+		return lBlockedX !== undefined ||
+				rBlockedX !== undefined ||
+				tBlockedY !== undefined;
 	}
 }

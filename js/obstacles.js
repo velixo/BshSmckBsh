@@ -112,13 +112,6 @@ Rectangle.prototype._checkIfOtherIsInside = function(edges) {
 function Floor(thickness) {
 	Rectangle.call(this, 0, canvas.height - thickness, canvas.width, thickness, "floor");
 	this.name = 'floor';
-
-//	this.update = function() {
-//		this.y = canvas.height - thickness;
-//		this.width = canvas.width;
-//	}
-
-	//world.add(this);
 }
 Floor.prototype = Object.create(Rectangle.prototype);
 Floor.prototype.update = function() {
@@ -143,18 +136,8 @@ function Wall(alignment, thickness) {
 	} else if (alignment === 'right') {
 		Rectangle.call(this, canvas.width - thickness, 0, thickness, canvas.height, alignment + " wall");
 	}
-
-//	this.update = function() {
-//		if (this.alignment === 'left') {
-//			this.x = 0;
-//		} else if (this.alignment === 'right') {
-//			this.x = canvas.width - thickness;
-//		}
-//		this.height = canvas.height;
-//	}
-
-	//world.add(this);
 }
+
 Wall.prototype = Object.create(Rectangle.prototype);
 Wall.prototype.update = function() {
 	if (this.alignment === 'left') {
