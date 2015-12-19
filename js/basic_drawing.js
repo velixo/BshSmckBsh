@@ -17,3 +17,8 @@ function _evalArg(arg, def) {
 		return arg;
 	}
 }
+
+function drawText(x, y, text) {
+	canvas.font="40px Georgia";
+	canvas.fillText(text, x, y);
+}

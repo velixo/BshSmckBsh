@@ -99,6 +99,14 @@ Rectangle.prototype._checkYCollision = function(edges) {
 
 Rectangle.prototype._touchingX = function(edges) {
 	return edges.otherMiddleX >= edges.lEdge && edges.otherMiddleX <= edges.rEdge;
+//	var l = edges.lEdge;
+//	var r = edges.rEdge;
+//	var ol = edges.otherLEdge;
+//	var or = edges.otherREdge;
+//	var crossingLeft = (or >= l) && !(ol >= l) && (ol <= r) && (or <= r);
+//	var crossingRight = (or >= l) && (ol >= l) && (ol <= r) && !(or <= r);
+//	var inside = (or >= l) && (ol >= l) && (ol <= r) && (or <= r);
+//	return (crossingLeft || crossingRight || inside);
 }
 
 Rectangle.prototype._touchingY = function(edges) {

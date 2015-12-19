@@ -37,4 +37,5 @@ function update(deltatime) {
 	platform2.draw();
 	platform3.draw();
 	drawCircle(player.x + player.width/2, player.y + player.width/2, player.width/2);
+	drawText(player.x, player.y - 35, "Pale ale");
 }
