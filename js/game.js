@@ -9,6 +9,7 @@ var platform2;
 var platform3;
 
 var player;
+var animManager;
 
 /** Called when page is loaded*/
 function start() {
@@ -20,7 +21,9 @@ function start() {
 	platform1 = new Rectangle(250, 600, 300, 40, "rectbroad");
 	platform2 = new Rectangle(700, 150, 100, 600, "recttall");
 	platform3 = new Rectangle(350, 800, 400, 40, "rectbroadunder");
-	player = new Player(canvas.width / 2, 200, 40, world);
+	player = new Player(canvas.width / 2, 200, 40, world, animManager);
+
+	animManager = new AnimationManager();
 }
 
 /** Called every new frame
@@ -38,4 +41,6 @@ function update(deltatime) {
 	platform3.draw();
 	drawCircle(player.x + player.width/2, player.y + player.width/2, player.width/2);
 	drawText(player.x, player.y - 35, "Pale ale");
+
+	animManager.drawAnimations();
 }
