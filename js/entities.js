@@ -34,6 +34,74 @@ function Entity(x, y, name) {
 	this.name = evalArg(name, "entity")
 }
 
+function Blob(x, y, height, world) {
+	Rectangle.call(this, x, y, height, height, "blob", false);
+	this.deltaX = 1;
+	this.deltaY = 1;
+	var world = world;
+	
+	var lBlockedX = undefined;
+	var rBlockedX = undefined;
+	var tBlockedY = undefined;
+	var bBlockedY = undefined;
+	
+	this.update = function(deltatime) {
+		lBlockedX = undefined;
+		rBlockedX = undefined;
+		tBlockedY = undefined;
+		bBlockedY = undefined;
+		var collisions = world.checkCollision(this);
+		for (var i = 0; i < collisions.length; i++) {
+			this._handleCollisionEvent(collisions[i], deltatime);
+		}
+		if (rBlockedX || lBlockedX){
+			this.deltaX = -this.deltaX;
+		}
+
+		if (tBlockedY || bBlockedY){
+			this.deltaY = -this.deltaY;
+		}
+		
+		this.x += this.deltaX*deltatime;
+		this.y += this.deltaY*deltatime;
+	}
+
+	this._handleCollisionEvent = function(collInfo, deltatime) {
+		var collEdgeStr = collInfo.collidedEdge;
+		if (collEdgeStr.indexOf('l') !== -1) {
+			if (lBlockedX !== undefined) {
+				lBlockedX = (lBlockedX < collInfo.collidedX) ? collInfo.collidedX : lBlockedX;
+			} else {
+				lBlockedX = collInfo.collidedX;
+			}
+		}
+
+		if (collEdgeStr.indexOf('r') !== -1) {
+			if (rBlockedX !== undefined) {
+				rBlockedX = (rBlockedX > collInfo.collidedX) ? collInfo.collidedX : rBlockedX;
+			} else {
+				rBlockedX = collInfo.collidedX;
+			}
+		}
+
+		if (collEdgeStr.indexOf('t') !== -1) {
+			if (tBlockedY !== undefined) {
+				tBlockedY = (tBlockedY > collInfo.collidedY) ? collInfo.collidedY : tBlockedY;
+			} else {
+				tBlockedY = collInfo.collidedY;
+			}
+		}
+
+		if (collEdgeStr.indexOf('b') !== -1) {
+			if (bBlockedY !== undefined) {
+				bBlockedY = (bBlockedY < collInfo.collidedY) ? collInfo.collidedY : bBlockedY;
+			} else {
+				bBlockedY = collInfo.collidedY;
+			}
+		}
+	}
+}
+
 function Player(x, y, height, world, animManager) {
 	Rectangle.call(this, x, y, height, height, "player", false);
 	this.animManager = animManager;

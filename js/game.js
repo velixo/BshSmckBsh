@@ -7,6 +7,7 @@ var rwall;
 var platform1;
 var platform2;
 var platform3;
+var blob;
 
 var player;
 var animManager;
@@ -21,6 +22,7 @@ function start() {
 	animManager = new AnimationManager();
 	console.log("animManager = " + animManager.toString());
 	player = new Player(canvas.width / 2, 200, 40, world, animManager);
+	blob = new Blob(550,501,20, world);
 }
 
 /** Called every new frame
@@ -29,8 +31,10 @@ function start() {
 function update(deltatime) {
 	world.update();
 	player.update(deltatime);
+	blob.update(deltatime);
 	world.draw();
 	drawCircle(player.x + player.width/2, player.y + player.width/2, player.width/2);
+	drawCircle(blob.x + blob.width/2, blob.y + blob.width/2, blob.width/2);
 	drawText(player.x, player.y - 35, playerName, "#0d0");
 	animManager.drawAnimations();
 }
