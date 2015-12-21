@@ -7,11 +7,13 @@ var rwall;
 var platform1;
 var platform2;
 var platform3;
-var blob;
+var blobs;
 
 var player;
 var animManager;
 var playerName;
+
+var timeToBlobSpawn;
 
 /** Called when page is loaded*/
 function start() {
@@ -21,7 +23,9 @@ function start() {
 	loadLevel1();
 	animManager = new AnimationManager();
 	player = new Player(canvas.width / 2, 200, 40, world, animManager);
-	blob = new Blob(550,501,20, world);
+	blobs = [];
+	blobs.push(new Blob(550,501,20, world));
+	timeToBlobSpawn = 100;
 }
 
 /** Called every new frame
@@ -30,10 +34,22 @@ function start() {
 function update(deltatime) {
 	world.update();
 	player.update(deltatime);
-	blob.update(deltatime);
+	for (var i = 0; i < blobs.length; i++){
+		blobs[i].update(deltatime);
+	}
+
 	world.draw();
 	drawCircle(player.x + player.width/2, player.y + player.width/2, player.width/2);
-	drawCircle(blob.x + blob.width/2, blob.y + blob.width/2, blob.width/2);
+	for (var i = 0; i < blobs.length; i++){
+		blob = blobs[i]
+		drawCircle(blob.x + blob.width/2, blob.y + blob.width/2, blob.width/2);
+	}
+	
 	drawText(player.x, player.y - 35, playerName, "#0d0");
 	animManager.drawAnimations();
+	timeToBlobSpawn-=1;
+	if (timeToBlobSpawn == 0) {
+		timeToBlobSpawn = 100;
+		blobs.push(new Blob(Math.floor(Math.random()*canvas.width),Math.floor(Math.random()*canvas.height),20, world));
+	}
 }
