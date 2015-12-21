@@ -16,8 +16,8 @@ function start() {
 	console.log("game.start");
 	world = new World();
 	floor = new Floor(30);
-	lwall = new Wall('left', 30);
-	rwall = new Wall('right', 30);
+	lwall = new Wall('l', 30);
+	rwall = new Wall('r', 30);
 	platform1 = new Rectangle(250, 600, 300, 40, "rectbroad");
 	platform2 = new Rectangle(700, 150, 100, 600, "recttall");
 	platform3 = new Rectangle(350, 800, 400, 40, "rectbroadunder");

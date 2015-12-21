@@ -150,18 +150,18 @@ Floor.prototype._checkXCollision = function() {
 function Wall(alignment, thickness) {
 	this.alignment = alignment;
 
-	if (alignment === 'left') {
+	if (alignment === 'l') {
 		Rectangle.call(this, 0, 0, thickness, canvas.height, alignment + " wall");
-	} else if (alignment === 'right') {
+	} else if (alignment === 'r') {
 		Rectangle.call(this, canvas.width - thickness, 0, thickness, canvas.height, alignment + " wall");
 	}
 }
 
 Wall.prototype = Object.create(Rectangle.prototype);
 Wall.prototype.update = function() {
-	if (this.alignment === 'left') {
+	if (this.alignment === 'l') {
 		this.x = 0;
-	} else if (this.alignment === 'right') {
+	} else if (this.alignment === 'r') {
 		this.x = canvas.width - this.width;
 	}
 	this.height = canvas.height;
@@ -173,17 +173,20 @@ Wall.prototype._checkYCollision = function() {
 	};
 }
 Wall.prototype._checkXCollision = function(edges) {
-	var collXEdge, collXEdgeStr;
-	if (edges.otherREdge >= edges.lEdge && edges.otherLEdge <= edges.lEdge) {
-		collXEdge = edges.lEdge;
-		collXEdgeStr = 'l';
-	} else if (edges.otherLEdge <= edges.rEdge && edges.otherREdge >= edges.rEdge) {
-		collXEdge = edges.rEdge;
-		collXEdgeStr = 'r';
-	} else {
-		collXEdge = undefined;
-		collXEdgeStr = '';
+	var collXEdge = undefined;
+	var collXEdgeStr = '';
+	if (this.alignment === 'l') {
+		if (edges.otherLEdge < edges.rEdge) {
+			collXEdge = edges.rEdge;
+			collXEdgeStr = 'r';
+		}
+	} else if (this.alignment === 'r') {
+		if (edges.otherREdge > edges.lEdge) {
+			collXEdge = edges.lEdge;
+			collXEdgeStr = 'l';
+		}
 	}
+
 	return {
 		collXEdge: collXEdge,
 		collXEdgeStr: collXEdgeStr
