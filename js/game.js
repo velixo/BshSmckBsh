@@ -20,7 +20,6 @@ function start() {
 	world = new World();
 	loadLevel1();
 	animManager = new AnimationManager();
-	console.log("animManager = " + animManager.toString());
 	player = new Player(canvas.width / 2, 200, 40, world, animManager);
 	blob = new Blob(550,501,20, world);
 }
