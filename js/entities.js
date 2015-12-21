@@ -38,8 +38,9 @@ function Blob(x, y, height, world) {
 	Rectangle.call(this, x, y, height, height, "blob", false);
 	this.deltaX = 0.4;
 	this.deltaY = 0.4;
-	var maxDeltaY = 1;
-	var deltaYSlowDown = 0.013;
+	var maxDeltaY = 0.9;
+	var maxDeltaX = 0.4;
+	var deltaYGravity = 0.013;
 	var world = world;
 
 	var lBlockedX = undefined;
@@ -54,38 +55,32 @@ function Blob(x, y, height, world) {
 		bBlockedY = undefined;
 		var collisions = world.checkCollision(this);
 		for (var i = 0; i < collisions.length; i++) {
-			this._handleCollisionEvent(collisions[i], deltatime);
-		}
-		if (rBlockedX || lBlockedX){
-			this.deltaX = -this.deltaX;
+			this._readCollisionEvent(collisions[i], deltatime);
 		}
 
-		if (tBlockedY) {
+		if (rBlockedX !== undefined) {
+			this.x = rBlockedX;
+			this.deltaX = maxDeltaX;
+		}
+		if (lBlockedX !== undefined) {
+			this.x = lBlockedX - this.width;
+			this.deltaX = -maxDeltaX;
+		}
+		if (tBlockedY !== undefined) {
+			this.y = tBlockedY - this.height;
 			this.deltaY = -maxDeltaY;
-			this.y = tBlockedY - (this.height * 1);
-		} else if (bBlockedY) {
+		}
+		if (bBlockedY !== undefined) {
+			this.y = bBlockedY;
 			this.deltaY = maxDeltaY;
-			this.y = bBlockedY + (this.height * 0);
 		}
 
-		if (this.x > canvas.width) {
-			this.x = canvas.width - this.width - 40;
-			this.deltaX = -0.4;
-		}
-		if (this.x < 0) {
-			this.x = 40;
-			this.deltaX = -0.4;
-		}
-		if (this.y > canvas.height) {
-			this.y = canvas.height - this.height - 40;
-		}
-
-		this.deltaY += deltaYSlowDown;
+		this.deltaY += deltaYGravity;
 		this.x += this.deltaX*deltatime;
 		this.y += this.deltaY*deltatime;
 	}
 
-	this._handleCollisionEvent = function(collInfo, deltatime) {
+	this._readCollisionEvent = function(collInfo, deltatime) {
 		var collEdgeStr = collInfo.collidedEdge;
 		if (collEdgeStr.indexOf('l') !== -1) {
 			if (lBlockedX !== undefined) {
@@ -168,7 +163,7 @@ function Player(x, y, height, world, animManager) {
 		bBlockedY = undefined;
 		var collisions = world.checkCollision(this);
 		for (var i = 0; i < collisions.length; i++) {
-			this._handleCollisionEvent(collisions[i], deltatime);
+			this._readCollisionEvent(collisions[i], deltatime);
 		}
 
 		touchingSurface = this._checkTouchingSurface(lBlockedX, rBlockedX, tBlockedY, bBlockedY)
@@ -205,7 +200,7 @@ function Player(x, y, height, world, animManager) {
 		}
 	}
 
-	this._handleCollisionEvent = function(collInfo, deltatime) {
+	this._readCollisionEvent = function(collInfo, deltatime) {
 		var collEdgeStr = collInfo.collidedEdge;
 		if (collEdgeStr.indexOf('l') !== -1) {
 			if (lBlockedX !== undefined) {
