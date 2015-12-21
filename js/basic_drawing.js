@@ -10,9 +10,9 @@ function drawCircle(x, y, radius, color) {
 	canvas.fill();
 }
 
-function drawText(x, y, text) {
+function drawText(x, y, text, color) {
 	canvas.font="40px Georgia";
-	canvas.fillStyle = "#000";
+	canvas.fillStyle = evalArg(color, "#000");
 	canvas.fillText(text, x, y);
 }
 

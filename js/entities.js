@@ -20,6 +20,12 @@ function World() {
 			this.obstacles[i].update();
 		};
 	}
+
+	this.draw = function() {
+		for (var i = 0; i < this.obstacles.length; i++) {
+			this.obstacles[i].draw();
+		};
+	}
 }
 
 function Entity(x, y, name) {
@@ -30,15 +36,14 @@ function Entity(x, y, name) {
 
 function Player(x, y, height, world, animManager) {
 	Rectangle.call(this, x, y, height, height, "player", false);
-	console.log("entities.js animManager type = " + (typeof animManager));
 	this.animManager = animManager;
-	console.log("entities.js this.animManager type = " + (typeof this.animManager));
 	var xdir = 0;
 	var xvel = 0.2;
 	var yvel = 0;
-	var xvelMultiplier = 0.4;
+	var xvelMultiplier = 0.5;
 	var yvelMultiplier = 0.02;
 	var yvelThreshold = 15;
+	var jumpRatio = 3;
 	var world = world;
 
 	var lBlockedX = undefined;
@@ -64,9 +69,9 @@ function Player(x, y, height, world, animManager) {
 		if (keyPressed.W && touchingSurface) {
 			yvel = -0.5;
 			if (lBlockedX !== undefined) {
-				xvel = -xvelMultiplier * 2;
+				xvel = -xvelMultiplier * jumpRatio;
 			} else if (rBlockedX !== undefined) {
-				xvel = xvelMultiplier * 2;
+				xvel = xvelMultiplier * jumpRatio;
 			}
 		}
 
@@ -93,7 +98,7 @@ function Player(x, y, height, world, animManager) {
 		} else if (touchingSurface) {
 			xvel *= 0.8;
 		} else {
-			xvel *= 0.9;
+			xvel *= 0.95;
 		}
 		this.x += xvel * deltatime;
 
