@@ -14,15 +14,16 @@ function loadLevel1 () {
 	new Rectangle(700, 450, 40, 350);
 	new Rectangle(1000, 400, 100, 40);
 	new Rectangle(1000, 420, 40, 280);
+	new Rectangle(1000, 0, 40, 60)
 
 	new Rectangle(1200, 800, 400, 40);
-	new Rectangle(1300, 250, 500, 40);
+	new Rectangle(1230, 250, 550, 40);
 	new Rectangle(1400, 550, 350, 40);
+	new Rectangle(1400, 0, 40, 130);
 
-	new Rectangle(1450, 270, 40, 100);
+	new Rectangle(1450, 270, 150, 100);
 	new Rectangle(1560, 820, 40, 130);
 	new Rectangle(1630, 570, 40, 100);
-
 
 	console.log("Level 1 loaded");
 }
