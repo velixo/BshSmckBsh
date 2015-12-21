@@ -1,5 +1,6 @@
 var canvasElement;
 var canvas;
+var motionBlur = true;
 
 $(document).ready(function(){
 	console.log("init.js loaded");
@@ -26,7 +27,14 @@ function _renderFrame(timestamp) {
 	var deltatime = timestamp - _timeSinceLastRender;
 	_timeSinceLastRender = timestamp;
 
-	canvas.clearRect(0, 0, canvas.width, canvas.height);
+	if (motionBlur) {
+		canvas.fillStyle = '#fff';
+		canvas.globalAlpha = 0.2;
+		canvas.fillRect(0, 0, canvas.width, canvas.height);
+		canvas.globalAlpha = 1;
+	} else {
+		canvas.clearRect(0, 0, canvas.width, canvas.height);
+	}
 	update(deltatime);
 
 	window.requestAnimationFrame(_renderFrame);
