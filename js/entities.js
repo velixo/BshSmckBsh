@@ -36,15 +36,17 @@ function Entity(x, y, name) {
 
 function Blob(x, y, height, world) {
 	Rectangle.call(this, x, y, height, height, "blob", false);
-	this.deltaX = 1;
-	this.deltaY = 1;
+	this.deltaX = 0.4;
+	this.deltaY = 0.4;
+	var maxDeltaY = 1;
+	var deltaYSlowDown = 0.02;
 	var world = world;
-	
+
 	var lBlockedX = undefined;
 	var rBlockedX = undefined;
 	var tBlockedY = undefined;
 	var bBlockedY = undefined;
-	
+
 	this.update = function(deltatime) {
 		lBlockedX = undefined;
 		rBlockedX = undefined;
@@ -58,10 +60,27 @@ function Blob(x, y, height, world) {
 			this.deltaX = -this.deltaX;
 		}
 
-		if (tBlockedY || bBlockedY){
-			this.deltaY = -this.deltaY;
+		if (tBlockedY) {
+			this.deltaY = -maxDeltaY;
+			this.y = tBlockedY - (this.height * 1);
+		} else if (bBlockedY) {
+			this.deltaY = maxDeltaY;
+			this.y = bBlockedY + (this.height * 0);
 		}
-		
+
+		if (this.x > canvas.width) {
+			this.x = canvas.width - this.width - 40;
+			this.deltaX = -0.4;
+		}
+		if (this.x < 0) {
+			this.x = 40;
+			this.deltaX = -0.4;
+		}
+		if (this.y > canvas.height) {
+			this.y = canvas.height - this.height - 40;
+		}
+
+		this.deltaY += deltaYSlowDown;
 		this.x += this.deltaX*deltatime;
 		this.y += this.deltaY*deltatime;
 	}
