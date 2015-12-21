@@ -5,7 +5,6 @@ function AnimationManager() {
 
 AnimationManager.prototype.startAnimation = function(player, animtype, dir) {
 	if (animtype === 'hit') {
-		console.log('hit animation ' + dir + ' started');
 		this.anims[this.anims.length] = new HitAnimation(this, player, dir, performance.now());
 	}
 };
@@ -28,11 +27,9 @@ function HitAnimation(animManager, player, dir, startTime) {
 	this.endTime = startTime + 500;
 	this.animTimeLen = this.endTime - startTime;
 	this.finished = false;
-	console.log("animTimeLen=" + this.animTimeLen);
 }
 
 HitAnimation.prototype.update = function(currTime) {
-	console.log("updating hit animation " + this.dir);
 	var progressedTime = currTime - this.startTime;
 	if (currTime >= this.endTime) {
 		this.finished = true;
