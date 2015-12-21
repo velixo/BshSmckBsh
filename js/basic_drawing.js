@@ -21,24 +21,24 @@ function drawHit(player, dir, progress) {
 		var animX;
 		var animY;
 		if (dir === 'u') {
-			animX = player.x;
-			animY = player.y - player.height;
+			animX = player.x - player.width;
+			animY = player.y - player.height * 3;
 		} else if (dir === 'r') {
 			animX = player.x + player.width;
-			animY = player.y;
+			animY = player.y - player.height;
 		} else if (dir === 'd') {
-			animX = player.x;
+			animX = player.x - player.width;
 			animY = player.y + player.height;
 		} else if (dir === 'l') {
-			animX = player.x - player.width;
-			animY = player.y;
+			animX = player.x - player.width * 3;
+			animY = player.y - player.height;
 		} else {
 			console.log("Direction " + dir + " cannot be animated");
 			return;
 		}
 		canvas.globalAlpha = 1 - progress;
 		canvas.fillStyle = "#000";
-		canvas.fillRect(animX, animY, player.width, player.height);
+		canvas.fillRect(animX, animY, player.width * 3, player.height * 3);
 		canvas.globalAlpha = 1;
 	}
 }
