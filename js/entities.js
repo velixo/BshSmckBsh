@@ -39,7 +39,7 @@ function Blob(x, y, height, world) {
 	this.deltaX = 0.4;
 	this.deltaY = 0.4;
 	var maxDeltaY = 1;
-	var deltaYSlowDown = 0.02;
+	var deltaYSlowDown = 0.013;
 	var world = world;
 
 	var lBlockedX = undefined;
