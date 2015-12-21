@@ -1,6 +1,6 @@
 var canvasElement;
 var canvas;
-var motionBlur = true;
+var motionBlur = false;
 
 $(document).ready(function(){
 	console.log("init.js loaded");
