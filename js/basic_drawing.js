@@ -12,7 +12,7 @@ function drawCircle(x, y, radius, color) {
 
 function drawText(x, y, text) {
 	canvas.font="40px Georgia";
-	canvas.fillStyle = evalArg(color, "#0d0");
+	canvas.fillStyle = "#000";
 	canvas.fillText(text, x, y);
 }
 
@@ -36,8 +36,8 @@ function drawHit(player, dir, progress) {
 			console.log("Direction " + dir + " cannot be animated");
 			return;
 		}
-		canvas.globalAlpha = progress;
-		canvas.fillStyle = evalArg(color, "#000");
+		canvas.globalAlpha = 1 - progress;
+		canvas.fillStyle = "#000";
 		canvas.fillRect(animX, animY, player.width, player.height);
 		canvas.globalAlpha = 1;
 	}

@@ -28,8 +28,11 @@ function Entity(x, y, name) {
 	this.name = evalArg(name, "entity")
 }
 
-function Player(x, y, height, world) {
+function Player(x, y, height, world, animManager) {
 	Rectangle.call(this, x, y, height, height, "player", false);
+	console.log("entities.js animManager type = " + (typeof animManager));
+	this.animManager = animManager;
+	console.log("entities.js this.animManager type = " + (typeof this.animManager));
 	var xdir = 0;
 	var xvel = 0.2;
 	var yvel = 0;
@@ -150,4 +153,29 @@ function Player(x, y, height, world) {
 				rBlockedX !== undefined ||
 				tBlockedY !== undefined;
 	}
+
+	//add start animation for up arrow key
+	addKeyPressFunction(38, false, [animManager, player], function(argList) {
+		var animManager = argList[0];
+		var player = argList[1];
+		animManager.startAnimation(player, 'hit', 'u');
+	});
+	//add start animation for right arrow key
+	addKeyPressFunction(39, false, [animManager, player], function(argList) {
+		var animManager = argList[0];
+		var player = argList[1];
+		animManager.startAnimation(player, 'hit', 'r');
+	});
+	//add start animation for down arrow key
+	addKeyPressFunction(40, false, [animManager, player], function(argList) {
+		var animManager = argList[0];
+		var player = argList[1];
+		animManager.startAnimation(player, 'hit', 'd');
+	});
+	//add start animation for left arrow key
+	addKeyPressFunction(37, false, [animManager, player], function(argList) {
+		var animManager = argList[0];
+		var player = argList[1];
+		animManager.startAnimation(player, 'hit', 'l');
+	});
 }
