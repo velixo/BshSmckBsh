@@ -24,7 +24,7 @@ function HitAnimation(animManager, player, dir, startTime) {
 	this.player = player;
 	this.dir = dir;
 	this.startTime = startTime;
-	this.endTime = startTime + 500;
+	this.endTime = startTime + 200;
 	this.animTimeLen = this.endTime - startTime;
 	this.finished = false;
 }
