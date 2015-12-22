@@ -21,7 +21,7 @@ function start() {
 	playerName = prompt("Enter your name:");
 	world = new World();
 	loadLevel1();
-	animManager = new AnimationManager();
+	animManager = new EffectManager();
 	player = new Player(canvas.width / 2, 200, 40, world, animManager);
 	blobs = [];
 	timeToBlobSpawn = performance.now();
@@ -39,7 +39,7 @@ function update(deltatime) {
 	world.draw();
 	drawCircle(player.x + player.width/2, player.y + player.width/2, player.width/2, '#00d');
 	drawText(player.x, player.y - 35, playerName, "#00d");
-	animManager.drawAnimations();
+	animManager.drawEffects();
 
 	for (var i = 0; i < blobs.length; i++){
 		blob = blobs[i]
