@@ -326,13 +326,13 @@ function HitBox(player, dir) {
 HitBox.prototype.checkCollisions = function(world) {
 	var collisions = [];
 	for (var i = 0; i < world.obstacles.length; i++) {
-		var collInfo = this._collidesWith(world.obstacles[i]);
+		var collInfo = this.collidesWith(world.obstacles[i]);
 		if (collInfo !== null) collisions.push(collInfo);
 	};
 	return collisions;
 
 }
-HitBox.prototype._collidesWith = function(other) {
+HitBox.prototype.collidesWith = function(other) {
 	l = this.x;
 	r = this.x + this.width;
 	t = this.y;
