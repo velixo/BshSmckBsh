@@ -44,7 +44,7 @@ function Entity(x, y, name) {
 }
 
 function Blob(x, y, height, world) {
-	RectObstacle.call(this, x, y, height, height, "blob", true);
+	Rectangle.call(this, x, y, height, height, "blob", true);
 	this.deltaX = 0.4;
 	this.deltaY = 0.4;
 	this.health = 1;
@@ -61,7 +61,7 @@ function Blob(x, y, height, world) {
 	this.deathFadeOutStart = 0;
 	this.deathFadeOutEnd = 0;
 }
-Blob.prototype = Object.create(RectObstacle.prototype);
+Blob.prototype = Object.create(Rectangle.prototype);
 Blob.prototype.update = function(deltatime) {
 	this.lBlockedX = undefined;
 	this.rBlockedX = undefined;
@@ -154,7 +154,7 @@ Blob.prototype._readCollisionEvent = function(collInfo, deltatime) {
 
 
 function Player(x, y, height, world, effectsManager) {
-	RectObstacle.call(this, x, y, height, height, "player", false);
+	Rectangle.call(this, x, y, height, height, "player", false);
 	this.effectsManager = effectsManager;
 	var xdir = 0;
 	var xvel = 0.2;
