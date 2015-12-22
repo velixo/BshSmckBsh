@@ -24,8 +24,7 @@ function start() {
 	animManager = new AnimationManager();
 	player = new Player(canvas.width / 2, 200, 40, world, animManager);
 	blobs = [];
-	blobs.push(new Blob(550,501,20, world));
-	timeToBlobSpawn = performance.now() + 2000;
+	timeToBlobSpawn = performance.now();
 }
 
 /** Called every new frame
@@ -38,8 +37,8 @@ function update(deltatime) {
 		blobs[i].update(deltatime);
 	}
 	world.draw();
-	drawCircle(player.x + player.width/2, player.y + player.width/2, player.width/2);
-	drawText(player.x, player.y - 35, playerName, "#0d0");
+	drawCircle(player.x + player.width/2, player.y + player.width/2, player.width/2, '#00d');
+	drawText(player.x, player.y - 35, playerName, "#00d");
 	animManager.drawAnimations();
 
 	for (var i = 0; i < blobs.length; i++){
@@ -47,7 +46,7 @@ function update(deltatime) {
 		drawCircle(blob.x + blob.width/2, blob.y + blob.width/2, blob.width/2);
 	}
 	if (performance.now() > timeToBlobSpawn) {
-		timeToBlobSpawn = performance.now() + 2000;
+		timeToBlobSpawn = performance.now() + 2500;
 		blobs.push(new Blob(Math.floor(Math.random()*canvas.width), Math.floor(Math.random()*canvas.height), 20, world));
 	}
 }
