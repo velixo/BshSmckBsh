@@ -1,15 +1,15 @@
-function AnimationManager() {
+function EffectManager() {
 	this.anims = [];
 
 };
 
-AnimationManager.prototype.startAnimation = function(player, animtype, dir) {
+EffectManager.prototype.startEffect = function(player, animtype, dir) {
 	if (animtype === 'hit') {
-		this.anims[this.anims.length] = new HitAnimation(this, player, dir, performance.now());
+		this.anims[this.anims.length] = new HitEffect(this, player, dir, performance.now());
 	}
 };
 
-AnimationManager.prototype.drawAnimations = function() {
+EffectManager.prototype.drawEffects = function() {
 	var currTime = performance.now();
 	for (var i = 0; i < this.anims.length; i++) {
 		this.anims[i].update(currTime);
@@ -19,7 +19,7 @@ AnimationManager.prototype.drawAnimations = function() {
 	}
 };
 
-function HitAnimation(animManager, player, dir, startTime) {
+function HitEffect(animManager, player, dir, startTime) {
 	this.animManager = animManager;
 	this.player = player;
 	this.dir = dir;
@@ -29,7 +29,7 @@ function HitAnimation(animManager, player, dir, startTime) {
 	this.finished = false;
 }
 
-HitAnimation.prototype.update = function(currTime) {
+HitEffect.prototype.update = function(currTime) {
 	var progressedTime = currTime - this.startTime;
 	if (currTime >= this.endTime) {
 		this.finished = true;
