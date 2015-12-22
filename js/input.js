@@ -10,7 +10,6 @@ var _keyArgMap = {};
 var _keyHoldEnabledMap = {};
 function addKeyPressFunction(keycode, holdEnabled, args, func) {
 	if (typeof func === 'function') {
-		console.log("function mapped to " + keycode);
 		_keyFuncMap[keycode] = func;
 		_keyArgMap[keycode] = args;
 		_keyHoldEnabledMap[keycode] = holdEnabled;
