@@ -6,6 +6,13 @@ function World() {
 		this.obstacles[this.obstacles.length] = obstacle;
 	};
 
+	this.remove = function(obj) {
+		var index = this.obstacles.indexOf(obj);
+		if (index !== -1) {
+			obstacles.splice(index, 1);
+		}
+	}
+
 	this.checkCollision = function(player) {
 		var collisions = [];
 		for (var i = 0; i < this.obstacles.length; i++) {
@@ -38,6 +45,7 @@ function Blob(x, y, height, world) {
 	RectObstacle.call(this, x, y, height, height, "blob", false);
 	this.deltaX = 0.4;
 	this.deltaY = 0.4;
+	this.health = 1;
 	var maxDeltaY = 0.9;
 	var maxDeltaX = 0.4;
 	var deltaYGravity = 0.013;
@@ -80,6 +88,30 @@ function Blob(x, y, height, world) {
 		this.y += this.deltaY*deltatime;
 	}
 
+	this.deathFadeOutStart = 0;
+	this.deathFadeOutEnd = 0;
+	this.draw = function() {
+		if (health > 1) {
+			drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, '#0d0');
+		} else {
+			var currTime = performance.now();
+			if (currTime < this.deathFadeOutEnd) {
+				var fadeProgress = (this.deathFadeOutEnd - currTime) / (this.deathFadeOutEnd - this.deathFadeOutStart);
+				var col = colorFloatToHex(1 - fadeProgress, 0, 0);
+				drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, col, 1-fadeProgress);
+			} else {
+				world.remove(this);
+			}
+		}
+	}
+
+	this.destroy = function() {
+		this.health = -1;
+		this.deathFadeOutStart = performance.now();
+		this.deathFadeOutEnd = this.deathFadeOutStart + 1000;
+		console.log(this.name + " destroyed");
+	}
+
 	this._readCollisionEvent = function(collInfo, deltatime) {
 		var collEdgeStr = collInfo.collidedEdge;
 		if (collEdgeStr.indexOf('l') !== -1) {
@@ -116,9 +148,9 @@ function Blob(x, y, height, world) {
 	}
 }
 
-function Player(x, y, height, world, animManager) {
+function Player(x, y, height, world, effectsManager) {
 	RectObstacle.call(this, x, y, height, height, "player", false);
-	this.animManager = animManager;
+	this.effectsManager = effectsManager;
 	var xdir = 0;
 	var xvel = 0.2;
 	var yvel = 0;
@@ -242,27 +274,81 @@ function Player(x, y, height, world, animManager) {
 	}
 
 	//add start animation for up arrow key
-	addKeyPressFunction(38, false, [animManager, player], function(argList) {
-		var animManager = argList[0];
+	addKeyPressFunction(38, false, [effectsManager, player], function(argList) {
+		var effectsManager = argList[0];
 		var player = argList[1];
-		animManager.startAnimation(player, 'hit', 'u');
+		var collisions = world.checkCollision(getHitArea(this, 'u'));
+		if (collisions !== null || collisions !== undefined) {
+			for (var i = 0; i < collisions.length; i++) {
+				if (collisions[i].name === 'blob') {
+					collisions[i].destroy();
+				}
+			}
+		}
+		effectsManager.startEffect(player, 'hit', 'u');
 	});
 	//add start animation for right arrow key
-	addKeyPressFunction(39, false, [animManager, player], function(argList) {
-		var animManager = argList[0];
+	addKeyPressFunction(39, false, [effectsManager, player], function(argList) {
+		var effectsManager = argList[0];
 		var player = argList[1];
-		animManager.startAnimation(player, 'hit', 'r');
+		var collisions = world.checkCollision(getHitArea(this, 'r'));
+		if (collisions !== null || collisions !== undefined) {
+			for (var i = 0; i < collisions.length; i++) {
+				if (collisions[i].name === 'blob') {
+					collisions[i].destroy();
+				}
+			}
+		}
+		effectsManager.startEffect(player, 'hit', 'r');
 	});
 	//add start animation for down arrow key
-	addKeyPressFunction(40, false, [animManager, player], function(argList) {
-		var animManager = argList[0];
+	addKeyPressFunction(40, false, [effectsManager, player], function(argList) {
+		var effectsManager = argList[0];
 		var player = argList[1];
-		animManager.startAnimation(player, 'hit', 'd');
+		var collisions = world.checkCollision(getHitArea(this, 'd'));
+		if (collisions !== null || collisions !== undefined) {
+			for (var i = 0; i < collisions.length; i++) {
+				if (collisions[i].name === 'blob') {
+					collisions[i].destroy();
+				}
+			}
+		}
+		effectsManager.startEffect(player, 'hit', 'd');
 	});
 	//add start animation for left arrow key
-	addKeyPressFunction(37, false, [animManager, player], function(argList) {
-		var animManager = argList[0];
+	addKeyPressFunction(37, false, [effectsManager, player], function(argList) {
+		var effectsManager = argList[0];
 		var player = argList[1];
-		animManager.startAnimation(player, 'hit', 'l');
+		var collisions = world.checkCollision(getHitArea(this, 'l'));
+		if (collisions !== null || collisions !== undefined) {
+			for (var i = 0; i < collisions.length; i++) {
+				if (collisions[i].name === 'blob') {
+					collisions[i].destroy();
+				}
+			}
+		}
+		effectsManager.startEffect(player, 'hit', 'l');
 	});
+}
+
+function getHitArea(player, dir) {
+	var hitX;
+	var hitY;
+	if (dir === 'u') {
+		hitX = player.x - player.width;
+		hitY = player.y - player.height * 3;
+	} else if (dir === 'r') {
+		hitX = player.x + player.width;
+		hitY = player.y - player.height;
+	} else if (dir === 'd') {
+		hitX = player.x - player.width;
+		hitY = player.y + player.height;
+	} else if (dir === 'l') {
+		hitX = player.x - player.width * 3;
+		hitY = player.y - player.height;
+	} else {
+		console.log("Direction " + dir + " cannot be animated");
+		return null;
+	}
+	return new RectObstacle(hitX, hitY, player.width * 3, player.height * 3, '', false);
 }

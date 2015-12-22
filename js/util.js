@@ -7,3 +7,15 @@ function evalArg(arg, def) {
 		return arg;
 	}
 }
+
+function colorFloatToHex(r, g, b) {
+	r = Math.floor(255 * r);
+	g = Math.floor(255 * g);
+	b = Math.floor(255 * b);
+	return "#" + _componentToHex(r) + _componentToHex(g) + _componentToHex(b);
+}
+
+function _componentToHex(c) {
+	var hex = c.toString(16);
+	return hex.length == 1 ? "0" + hex : hex;
+}
