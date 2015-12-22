@@ -2,14 +2,14 @@ function World() {
 	this.obstacles = [];
 
 	this.add = function(obstacle) {
-		console.log(obstacle.name + " added to world");
+		console.log(obstacle.name + " added to world at x=" + obstacle.x + " y=" + obstacle.y);
 		this.obstacles[this.obstacles.length] = obstacle;
 	};
 
 	this.remove = function(obj) {
 		var index = this.obstacles.indexOf(obj);
 		if (index !== -1) {
-			obstacles.splice(index, 1);
+			this.obstacles.splice(index, 1);
 		}
 	}
 
@@ -17,14 +17,16 @@ function World() {
 		var collisions = [];
 		for (var i = 0; i < this.obstacles.length; i++) {
 			var collInfo = this.obstacles[i].getCollisionInfo(player);
-			if (collInfo !== null) collisions.push(collInfo);
+			if (collInfo !== null && collInfo.collidedObj !== player) {
+				collisions.push(collInfo);
+			}
 		}
 		return collisions;
 	}
 
-	this.update = function() {
+	this.update = function(deltatime) {
 		for (var i = 0; i < this.obstacles.length; i++) {
-			this.obstacles[i].update();
+			this.obstacles[i].update(deltatime);
 		};
 	}
 
@@ -42,111 +44,114 @@ function Entity(x, y, name) {
 }
 
 function Blob(x, y, height, world) {
-	RectObstacle.call(this, x, y, height, height, "blob", false);
+	RectObstacle.call(this, x, y, height, height, "blob", true);
 	this.deltaX = 0.4;
 	this.deltaY = 0.4;
 	this.health = 1;
-	var maxDeltaY = 0.9;
-	var maxDeltaX = 0.4;
-	var deltaYGravity = 0.013;
-	var world = world;
+	this.maxDeltaY = 0.9;
+	this.maxDeltaX = 0.4;
+	this.deltaYGravity = 0.013;
+	this.world = world;
 
-	var lBlockedX = undefined;
-	var rBlockedX = undefined;
-	var tBlockedY = undefined;
-	var bBlockedY = undefined;
-
-	this.update = function(deltatime) {
-		lBlockedX = undefined;
-		rBlockedX = undefined;
-		tBlockedY = undefined;
-		bBlockedY = undefined;
-		var collisions = world.checkCollision(this);
-		for (var i = 0; i < collisions.length; i++) {
-			this._readCollisionEvent(collisions[i], deltatime);
-		}
-
-		if (rBlockedX !== undefined) {
-			this.x = rBlockedX;
-			this.deltaX = maxDeltaX;
-		}
-		if (lBlockedX !== undefined) {
-			this.x = lBlockedX - this.width;
-			this.deltaX = -maxDeltaX;
-		}
-		if (tBlockedY !== undefined) {
-			this.y = tBlockedY - this.height;
-			this.deltaY = -maxDeltaY;
-		}
-		if (bBlockedY !== undefined) {
-			this.y = bBlockedY;
-			this.deltaY = maxDeltaY;
-		}
-
-		this.deltaY += deltaYGravity;
-		this.x += this.deltaX*deltatime;
-		this.y += this.deltaY*deltatime;
-	}
+	this.lBlockedX = undefined;
+	this.rBlockedX = undefined;
+	this.tBlockedY = undefined;
+	this.bBlockedY = undefined;
 
 	this.deathFadeOutStart = 0;
 	this.deathFadeOutEnd = 0;
-	this.draw = function() {
-		if (health > 1) {
-			drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, '#0d0');
+}
+Blob.prototype = Object.create(RectObstacle.prototype);
+Blob.prototype.update = function(deltatime) {
+	this.lBlockedX = undefined;
+	this.rBlockedX = undefined;
+	this.tBlockedY = undefined;
+	this.bBlockedY = undefined;
+	var collisions = this.world.checkCollision(this);
+	for (var i = 0; i < collisions.length; i++) {
+		this._readCollisionEvent(collisions[i], deltatime);
+	}
+	if (this.rBlockedX !== undefined) {
+		this.x = this.rBlockedX;
+		this.deltaX = this.maxDeltaX;
+	}
+	if (this.lBlockedX !== undefined) {
+		this.x = this.lBlockedX - this.width;
+		this.deltaX = -this.maxDeltaX;
+	}
+	if (this.tBlockedY !== undefined) {
+		this.y = this.tBlockedY - this.height;
+		this.deltaY = -this.maxDeltaY;
+	}
+	if (this.bBlockedY !== undefined) {
+		this.y = this.bBlockedY;
+		this.deltaY = this.maxDeltaY;
+	}
+
+	this.deltaY += this.deltaYGravity;
+	this.x += this.deltaX * deltatime;
+	this.y += this.deltaY * deltatime;
+}
+
+Blob.prototype.draw = function() {
+	if (this.health > 0) {
+		drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, '#0d0', 1);
+	} else {
+		var currTime = performance.now();
+		if (currTime < this.deathFadeOutEnd) {
+			var fadeProgress = (currTime - this.deathFadeOutStart) / (this.deathFadeOutEnd - this.deathFadeOutStart);
+			var col = colorFloatToHex(1 - fadeProgress, 0, 0);
+			drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, col, 1-fadeProgress);
 		} else {
-			var currTime = performance.now();
-			if (currTime < this.deathFadeOutEnd) {
-				var fadeProgress = (this.deathFadeOutEnd - currTime) / (this.deathFadeOutEnd - this.deathFadeOutStart);
-				var col = colorFloatToHex(1 - fadeProgress, 0, 0);
-				drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, col, 1-fadeProgress);
-			} else {
-				world.remove(this);
-			}
-		}
-	}
-
-	this.destroy = function() {
-		this.health = -1;
-		this.deathFadeOutStart = performance.now();
-		this.deathFadeOutEnd = this.deathFadeOutStart + 1000;
-		console.log(this.name + " destroyed");
-	}
-
-	this._readCollisionEvent = function(collInfo, deltatime) {
-		var collEdgeStr = collInfo.collidedEdge;
-		if (collEdgeStr.indexOf('l') !== -1) {
-			if (lBlockedX !== undefined) {
-				lBlockedX = (lBlockedX < collInfo.collidedX) ? collInfo.collidedX : lBlockedX;
-			} else {
-				lBlockedX = collInfo.collidedX;
-			}
-		}
-
-		if (collEdgeStr.indexOf('r') !== -1) {
-			if (rBlockedX !== undefined) {
-				rBlockedX = (rBlockedX > collInfo.collidedX) ? collInfo.collidedX : rBlockedX;
-			} else {
-				rBlockedX = collInfo.collidedX;
-			}
-		}
-
-		if (collEdgeStr.indexOf('t') !== -1) {
-			if (tBlockedY !== undefined) {
-				tBlockedY = (tBlockedY > collInfo.collidedY) ? collInfo.collidedY : tBlockedY;
-			} else {
-				tBlockedY = collInfo.collidedY;
-			}
-		}
-
-		if (collEdgeStr.indexOf('b') !== -1) {
-			if (bBlockedY !== undefined) {
-				bBlockedY = (bBlockedY < collInfo.collidedY) ? collInfo.collidedY : bBlockedY;
-			} else {
-				bBlockedY = collInfo.collidedY;
-			}
+			this.world.remove(this);
 		}
 	}
 }
+
+Blob.prototype.destroy = function() {
+	if (this.health > 0) {
+		this.health = -1;
+		this.deathFadeOutStart = performance.now();
+		this.deathFadeOutEnd = this.deathFadeOutStart + 700;
+		console.log(this.name + " destroyed");
+	};
+}
+
+Blob.prototype._readCollisionEvent = function(collInfo, deltatime) {
+	var collEdgeStr = collInfo.collidedEdge;
+	if (collEdgeStr.indexOf('l') !== -1) {
+		if (this.lBlockedX !== undefined) {
+			this.lBlockedX = (this.lBlockedX < collInfo.collidedX) ? collInfo.collidedX : this.lBlockedX;
+		} else {
+			this.lBlockedX = collInfo.collidedX;
+		}
+	}
+
+	if (collEdgeStr.indexOf('r') !== -1) {
+		if (this.rBlockedX !== undefined) {
+			this.rBlockedX = (this.rBlockedX > collInfo.collidedX) ? collInfo.collidedX : this.rBlockedX;
+		} else {
+			this.rBlockedX = collInfo.collidedX;
+		}
+	}
+
+	if (collEdgeStr.indexOf('t') !== -1) {
+		if (this.tBlockedY !== undefined) {
+			this.tBlockedY = (this.tBlockedY > collInfo.collidedY) ? collInfo.collidedY : this.tBlockedY;
+		} else {
+			this.tBlockedY = collInfo.collidedY;
+		}
+	}
+
+	if (collEdgeStr.indexOf('b') !== -1) {
+		if (this.bBlockedY !== undefined) {
+			this.bBlockedY = (this.bBlockedY < collInfo.collidedY) ? collInfo.collidedY : this.bBlockedY;
+		} else {
+			this.bBlockedY = collInfo.collidedY;
+		}
+	}
+}
+
 
 function Player(x, y, height, world, effectsManager) {
 	RectObstacle.call(this, x, y, height, height, "player", false);
@@ -274,81 +279,84 @@ function Player(x, y, height, world, effectsManager) {
 	}
 
 	//add start animation for up arrow key
-	addKeyPressFunction(38, false, [effectsManager, player], function(argList) {
-		var effectsManager = argList[0];
-		var player = argList[1];
-		var collisions = world.checkCollision(getHitArea(this, 'u'));
-		if (collisions !== null || collisions !== undefined) {
-			for (var i = 0; i < collisions.length; i++) {
-				if (collisions[i].name === 'blob') {
-					collisions[i].destroy();
-				}
-			}
-		}
-		effectsManager.startEffect(player, 'hit', 'u');
-	});
+	addKeyPressFunction(38, false, [effectsManager, this, 'u', world], onHit);
 	//add start animation for right arrow key
-	addKeyPressFunction(39, false, [effectsManager, player], function(argList) {
-		var effectsManager = argList[0];
-		var player = argList[1];
-		var collisions = world.checkCollision(getHitArea(this, 'r'));
-		if (collisions !== null || collisions !== undefined) {
-			for (var i = 0; i < collisions.length; i++) {
-				if (collisions[i].name === 'blob') {
-					collisions[i].destroy();
-				}
-			}
-		}
-		effectsManager.startEffect(player, 'hit', 'r');
-	});
+	addKeyPressFunction(39, false, [effectsManager, this, 'r', world], onHit);
 	//add start animation for down arrow key
-	addKeyPressFunction(40, false, [effectsManager, player], function(argList) {
-		var effectsManager = argList[0];
-		var player = argList[1];
-		var collisions = world.checkCollision(getHitArea(this, 'd'));
-		if (collisions !== null || collisions !== undefined) {
-			for (var i = 0; i < collisions.length; i++) {
-				if (collisions[i].name === 'blob') {
-					collisions[i].destroy();
-				}
-			}
-		}
-		effectsManager.startEffect(player, 'hit', 'd');
-	});
+	addKeyPressFunction(40, false, [effectsManager, this, 'd', world], onHit);
 	//add start animation for left arrow key
-	addKeyPressFunction(37, false, [effectsManager, player], function(argList) {
+	addKeyPressFunction(37, false, [effectsManager, this, 'l', world], onHit);
+
+	function onHit(argList) {
 		var effectsManager = argList[0];
 		var player = argList[1];
-		var collisions = world.checkCollision(getHitArea(this, 'l'));
+		var dir = argList[2];
+		var world = argList[3];
+		var collisions = (new HitBox(player, dir)).checkCollisions(world);
 		if (collisions !== null || collisions !== undefined) {
 			for (var i = 0; i < collisions.length; i++) {
-				if (collisions[i].name === 'blob') {
-					collisions[i].destroy();
+				if (collisions[i].collidedObj.name === 'blob') {
+					collisions[i].collidedObj.destroy();
 				}
 			}
 		}
-		effectsManager.startEffect(player, 'hit', 'l');
-	});
+		effectsManager.startEffect(player, 'hit', dir);
+	}
 }
 
-function getHitArea(player, dir) {
-	var hitX;
-	var hitY;
+function HitBox(player, dir) {
+	this.width = player.width * 3;
+	this.height = player.height * 3;
 	if (dir === 'u') {
-		hitX = player.x - player.width;
-		hitY = player.y - player.height * 3;
+		this.x = player.x - player.width;
+		this.y = player.y - player.height * 3;
 	} else if (dir === 'r') {
-		hitX = player.x + player.width;
-		hitY = player.y - player.height;
+		this.x = player.x + player.width;
+		this.y = player.y - player.height;
 	} else if (dir === 'd') {
-		hitX = player.x - player.width;
-		hitY = player.y + player.height;
+		this.x = player.x - player.width;
+		this.y = player.y + player.height;
 	} else if (dir === 'l') {
-		hitX = player.x - player.width * 3;
-		hitY = player.y - player.height;
+		this.x = player.x - player.width * 3;
+		this.y = player.y - player.height;
 	} else {
-		console.log("Direction " + dir + " cannot be animated");
 		return null;
 	}
-	return new RectObstacle(hitX, hitY, player.width * 3, player.height * 3, '', false);
+}
+HitBox.prototype.checkCollisions = function(world) {
+	var collisions = [];
+	for (var i = 0; i < world.obstacles.length; i++) {
+		var collInfo = this._collidesWith(world.obstacles[i]);
+		if (collInfo !== null) collisions.push(collInfo);
+	};
+	return collisions;
+
+}
+HitBox.prototype._collidesWith = function(other) {
+	l = this.x;
+	r = this.x + this.width;
+	t = this.y;
+	b = this.y + this.height;
+	ol = other.x;
+	or = other.x + other.width;
+	ot = other.y;
+	ob = other.y + other.height;
+
+	var crossingLeft = (or > l) && !(ol > l) && (ol < r) && (or < r);
+	var crossingRight = (or > l) && (ol > l) && (ol < r) && !(or < r);
+	var insideX = (or > l) && (ol > l) && (ol < r) && (or < r);
+	var crossingTop = (ob > t) && !(ot > t) && (ot < b) && (ob < b);
+	var crossingBottom = (ob > t) && (ot > t) && (ot < b) && !(ob < b);
+	var insideY = (ob > t) && (ot > t) && (ot < b) && (ob < b);
+
+	var actCrossingL = crossingLeft && (crossingTop || insideY || crossingBottom);
+	var actCrossingR = crossingRight && (crossingTop || insideY || crossingBottom);
+	var actCrossingT = crossingTop && (crossingLeft || insideX || crossingRight);
+	var actCrossingB = crossingBottom && (crossingLeft || insideX || crossingRight);
+	var actInside = insideX && insideY;
+
+	if (actCrossingL || actCrossingR || actCrossingT || actCrossingB || actInside) {
+		return new CollisionInfo(other, undefined, undefined, 'c');
+	}
+	return null;
 }

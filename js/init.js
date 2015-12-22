@@ -13,9 +13,6 @@ $(document).ready(function(){
 		canvasElement.height = window.innerHeight;
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
-
-		//console.log("Canvas width: " + canvas.width);
-		//console.log("Canvas height: " + canvas.height);
 	});
 
 	_onLoad();
@@ -23,7 +20,6 @@ $(document).ready(function(){
 
 var _timeSinceLastRender;
 function _renderFrame(timestamp) {
-	//console.log("init._renderFrame")
 	var deltatime = timestamp - _timeSinceLastRender;
 	_timeSinceLastRender = timestamp;
 
@@ -41,7 +37,6 @@ function _renderFrame(timestamp) {
 }
 
 function _onLoad(){
-	//console.log("init._onLoad")
 	$(window).resize();
 	start();
 	_timeSinceLastRender = performance.now();

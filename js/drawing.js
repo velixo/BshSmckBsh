@@ -5,15 +5,17 @@ function drawRect(x, y, width, height, color, opacity) {
 	canvas.globalAlpha = 1;
 }
 
-function drawCircle(x, y, radius, color) {
+function drawCircle(x, y, radius, color, opacity) {
+	canvas.globalAlpha = evalArg(opacity, 1);
 	canvas.fillStyle = evalArg(color, "#0d0");
 	canvas.beginPath();
 	canvas.arc(x, y, radius, 0, 2*Math.PI);
 	canvas.fill();
+	canvas.globalAlpha = 1;
 }
 
 function drawText(x, y, text, color) {
-	canvas.font="40px Georgia";
+	canvas.font="40px Sans-Serif";
 	canvas.fillStyle = evalArg(color, "#000");
 	canvas.fillText(text, x, y);
 }

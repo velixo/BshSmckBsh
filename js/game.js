@@ -14,6 +14,7 @@ var effectsManager;
 var playerName;
 
 var timeToBlobSpawn;
+var maxBlobs = 25;
 
 /** Called when page is loaded*/
 function start() {
@@ -31,21 +32,14 @@ function start() {
  * @param {number} deltatime The time since the last frame was rendered, in milliseconds.
  */
 function update(deltatime) {
-	world.update();
+	world.update(deltatime);
 	player.update(deltatime);
-	for (var i = 0; i < blobs.length; i++){
-		blobs[i].update(deltatime);
-	}
 	world.draw();
 	drawCircle(player.x + player.width/2, player.y + player.width/2, player.width/2, '#00d');
 	drawText(player.x, player.y - 35, playerName, "#00d");
 	effectsManager.drawEffects();
 
-	for (var i = 0; i < blobs.length; i++){
-		blob = blobs[i]
-		drawCircle(blob.x + blob.width/2, blob.y + blob.width/2, blob.width/2);
-	}
-	if (performance.now() > timeToBlobSpawn) {
+	if (performance.now() > timeToBlobSpawn && blobs.length < maxBlobs) {
 		timeToBlobSpawn = performance.now() + 2500;
 		blobs.push(new Blob(Math.floor(Math.random()*canvas.width), Math.floor(Math.random()*canvas.height), 20, world));
 	}
