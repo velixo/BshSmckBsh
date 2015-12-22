@@ -35,7 +35,7 @@ function Entity(x, y, name) {
 }
 
 function Blob(x, y, height, world) {
-	Rectangle.call(this, x, y, height, height, "blob", false);
+	RectObstacle.call(this, x, y, height, height, "blob", false);
 	this.deltaX = 0.4;
 	this.deltaY = 0.4;
 	var maxDeltaY = 0.9;
@@ -117,7 +117,7 @@ function Blob(x, y, height, world) {
 }
 
 function Player(x, y, height, world, animManager) {
-	Rectangle.call(this, x, y, height, height, "player", false);
+	RectObstacle.call(this, x, y, height, height, "player", false);
 	this.animManager = animManager;
 	var xdir = 0;
 	var xvel = 0.2;

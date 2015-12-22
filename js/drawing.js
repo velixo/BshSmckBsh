@@ -16,7 +16,7 @@ function drawText(x, y, text, color) {
 	canvas.fillText(text, x, y);
 }
 
-function drawHit(player, dir, progress) {
+function drawHit(player, dir, progress, hitrect) {
 	if (progress < 1) {
 		var animX;
 		var animY;

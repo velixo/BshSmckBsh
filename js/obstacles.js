@@ -16,7 +16,7 @@ function CollisionInfo(collidedObj, collidedX, collidedY, collidedEdge) {
 	}
 }
 
-function Rectangle(x, y, width, height, name, includeInWorld) {
+function RectObstacle(x, y, width, height, name, includeInWorld) {
 	Entity.call(this, x, y, name);
 	this.width = width;
 	this.height = height;
@@ -24,15 +24,15 @@ function Rectangle(x, y, width, height, name, includeInWorld) {
 	if (includeInWorld) world.add(this);
 }
 
-Rectangle.prototype.update = function() {
+RectObstacle.prototype.update = function() {
 	//implement
 }
 
-Rectangle.prototype.draw = function() {
+RectObstacle.prototype.draw = function() {
 	drawRect(this.x, this.y, this.width, this.height);
 }
 
-Rectangle.prototype.getCollisionInfo = function(other) {
+RectObstacle.prototype.getCollisionInfo = function(other) {
 	var edges = {
 		lEdge: this.x,
 		rEdge: this.x + this.width,
@@ -59,7 +59,7 @@ Rectangle.prototype.getCollisionInfo = function(other) {
 	return null;
 }
 
-Rectangle.prototype._checkXCollision = function(edges) {
+RectObstacle.prototype._checkXCollision = function(edges) {
 	var collXEdge, collXEdgeStr;
 	var touchingY = this._touchingY(edges);
 	if (edges.otherREdge >= edges.lEdge && edges.otherLEdge <= edges.lEdge && touchingY) {
@@ -78,7 +78,7 @@ Rectangle.prototype._checkXCollision = function(edges) {
 	};
 }
 
-Rectangle.prototype._checkYCollision = function(edges) {
+RectObstacle.prototype._checkYCollision = function(edges) {
 	var collYEdge, collYEdgeStr;
 	var touchingX = this._touchingX(edges);
 	if (edges.otherBEdge >= edges.tEdge && edges.otherTEdge <= edges.tEdge && touchingX) {
@@ -97,7 +97,7 @@ Rectangle.prototype._checkYCollision = function(edges) {
 	};
 }
 
-Rectangle.prototype._touchingX = function(edges) {
+RectObstacle.prototype._touchingX = function(edges) {
 	return edges.otherMiddleX >= edges.lEdge && edges.otherMiddleX <= edges.rEdge;
 //	var l = edges.lEdge;
 //	var r = edges.rEdge;
@@ -109,7 +109,7 @@ Rectangle.prototype._touchingX = function(edges) {
 //	return (crossingLeft || crossingRight || inside);
 }
 
-Rectangle.prototype._touchingY = function(edges) {
+RectObstacle.prototype._touchingY = function(edges) {
 	var t = edges.tEdge;
 	var b = edges.bEdge;
 	var ot = edges.otherTEdge;
@@ -120,7 +120,7 @@ Rectangle.prototype._touchingY = function(edges) {
 	return (crossingTop || crossingBottom || inside);
 }
 
-Rectangle.prototype._checkIfOtherIsInside = function(edges) {
+RectObstacle.prototype._checkIfOtherIsInside = function(edges) {
 	var insideXAxis = edges.otherREdge <= edges.rEdge && edges.otherLEdge >= edges.lEdge;
 	var insideYAxis = edges.otherTEdge >= edges.tEdge && edges.otherBEdge <= edges.bEdge;
 	return insideXAxis && insideYAxis;
@@ -129,10 +129,10 @@ Rectangle.prototype._checkIfOtherIsInside = function(edges) {
 
 
 function Floor(thickness) {
-	Rectangle.call(this, 0, canvas.height - thickness, canvas.width, thickness, "floor");
+	RectObstacle.call(this, 0, canvas.height - thickness, canvas.width, thickness, "floor");
 	this.name = 'floor';
 }
-Floor.prototype = Object.create(Rectangle.prototype);
+Floor.prototype = Object.create(RectObstacle.prototype);
 Floor.prototype.update = function() {
 	this.y = canvas.height - this.height;
 	this.width = canvas.width;
@@ -163,13 +163,13 @@ function Wall(alignment, thickness) {
 	this.alignment = alignment;
 
 	if (alignment === 'l') {
-		Rectangle.call(this, 0, 0, thickness, canvas.height, alignment + " wall");
+		RectObstacle.call(this, 0, 0, thickness, canvas.height, alignment + " wall");
 	} else if (alignment === 'r') {
-		Rectangle.call(this, canvas.width - thickness, 0, thickness, canvas.height, alignment + " wall");
+		RectObstacle.call(this, canvas.width - thickness, 0, thickness, canvas.height, alignment + " wall");
 	}
 }
 
-Wall.prototype = Object.create(Rectangle.prototype);
+Wall.prototype = Object.create(RectObstacle.prototype);
 Wall.prototype.update = function() {
 	if (this.alignment === 'l') {
 		this.x = 0;
