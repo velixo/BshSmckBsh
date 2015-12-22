@@ -143,6 +143,18 @@ Floor.prototype._checkXCollision = function() {
 		collXEdgeStr: ''
 	};
 }
+Floor.prototype._checkYCollision = function(edges) {
+	var collYEdge = undefined;
+	var collYEdgeStr = '';
+	if (edges.otherBEdge >= edges.tEdge) {
+		collYEdge = edges.tEdge;
+		collYEdgeStr = 't';
+	}
+	return {
+		collYEdge: collYEdge,
+		collYEdgeStr: collYEdgeStr
+	};
+}
 
 
 
