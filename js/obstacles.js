@@ -36,7 +36,7 @@ Rectangle.prototype.checkCollidesWithWorld = function() {
 	var collisions = [];
 	for (var i = 0; i < world.obstacles.length; i++) {
 		var collInfo = this.collidesWith(world.obstacles[i]);
-		if (collInfo !== null && collInfo.collidedObj === this) {
+		if (collInfo !== null && collInfo.collidedObj !== this) {
 			collisions.push(collInfo);
 		}
 	};
@@ -48,12 +48,12 @@ Rectangle.prototype.collidesWith = function(other) {
 	var xColl = this._checkXCollision(edges);
 	var yColl = this._checkYCollision(edges);
 	if (this._checkIfOtherIsInside(edges)) {
-		return new CollisionInfo(this, undefined, undefined, 'i');
+		return new CollisionInfo(other, undefined, undefined, 'i');
 	}
 
 	collEdgeStr = xColl.collXEdgeStr + yColl.collYEdgeStr;
 	if (collEdgeStr.length > 0) {
-		return new CollisionInfo(this, xColl.collXEdge, yColl.collYEdge, collEdgeStr);
+		return new CollisionInfo(other, xColl.collXEdge, yColl.collYEdge, collEdgeStr);
 	}
 	return null;
 }
