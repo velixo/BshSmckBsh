@@ -2,7 +2,7 @@ function World() {
 	this.obstacles = [];
 
 	this.add = function(obstacle) {
-		console.log(obstacle.name + " added to world at x=" + obstacle.x + " y=" + obstacle.y);
+		//console.log(obstacle.name + " added to world at x=" + obstacle.x + " y=" + obstacle.y);
 		this.obstacles[this.obstacles.length] = obstacle;
 	};
 
@@ -11,17 +11,6 @@ function World() {
 		if (index !== -1) {
 			this.obstacles.splice(index, 1);
 		}
-	}
-
-	this.checkCollision = function(player) {
-		var collisions = [];
-		for (var i = 0; i < this.obstacles.length; i++) {
-			var collInfo = this.obstacles[i].collidesWith(player);
-			if (collInfo !== null && collInfo.collidedObj !== player) {
-				collisions.push(collInfo);
-			}
-		}
-		return collisions;
 	}
 
 	this.update = function(deltatime) {
@@ -66,7 +55,7 @@ Blob.prototype.update = function(deltatime) {
 	this.rBlockedX = undefined;
 	this.tBlockedY = undefined;
 	this.bBlockedY = undefined;
-	var collisions = world.checkCollision(this);
+	var collisions = this.checkCollidesWithWorld();
 	for (var i = 0; i < collisions.length; i++) {
 		this._readCollisionEvent(collisions[i], deltatime);
 	}
@@ -153,7 +142,7 @@ Blob.prototype._readCollisionEvent = function(collInfo, deltatime) {
 
 
 function Player(x, y, height, effectsManager, playerName) {
-	Rectangle.call(this, x, y, height, height, playerName, false);
+	Rectangle.call(this, x, y, height, height, playerName, true);
 	this.effectsManager = effectsManager;
 	this.xdir = 0;
 	this.xvel = 0.2;
@@ -222,7 +211,7 @@ Player.prototype.update = function(deltatime) {
 	this.rBlockedX = undefined;
 	this.tBlockedY = undefined;
 	this.bBlockedY = undefined;
-	var collisions = world.checkCollision(this);
+	var collisions = this.checkCollidesWithWorld();
 	for (var i = 0; i < collisions.length; i++) {
 		this._readCollisionEvent(collisions[i], deltatime);
 	}

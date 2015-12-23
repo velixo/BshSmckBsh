@@ -32,7 +32,7 @@ Rectangle.prototype.draw = function() {
 	drawRect(this.x, this.y, this.width, this.height);
 }
 
-Rectangle.prototype.checkCollisionsWithWorld = function() {
+Rectangle.prototype.checkCollidesWithWorld = function() {
 	var collisions = [];
 	for (var i = 0; i < world.obstacles.length; i++) {
 		var collInfo = this.collidesWith(world.obstacles[i]);
@@ -66,11 +66,11 @@ Rectangle.prototype._checkXCollision = function(edges) {
 
 	var collXEdge, collXEdgeStr;
 	var collOnYAxis = this._collidesOnYAxis(edges);
-	if (or >= l && ol <= l && collOnYAxis) {
-		collXEdge = l;
+	if (r >= ol && l <= ol && collOnYAxis) {
+		collXEdge = ol;
 		collXEdgeStr = 'l';
-	} else if (ol <= r && or >= r && collOnYAxis) {
-		collXEdge = r;
+	} else if (l <= or && r >= or && collOnYAxis) {
+		collXEdge = or;
 		collXEdgeStr = 'r';
 	} else {
 		collXEdge = undefined;
@@ -90,11 +90,11 @@ Rectangle.prototype._checkYCollision = function(edges) {
 
 	var collYEdge, collYEdgeStr;
 	var collOnXAxis = this._collidesOnXAxis(edges);
-	if (ob >= t && ot <= t && collOnXAxis) {
-		collYEdge = t;
+	if (b >= ot && t <= ot && collOnXAxis) {
+		collYEdge = ot;
 		collYEdgeStr = 't';
-	} else if (ot <= b && ob >= b && collOnXAxis) {
-		collYEdge = b;
+	} else if (t <= ob && b >= ob && collOnXAxis) {
+		collYEdge = ob;
 		collYEdgeStr = 'b';
 	} else {
 		collYEdge = undefined;
@@ -107,11 +107,11 @@ Rectangle.prototype._checkYCollision = function(edges) {
 }
 
 Rectangle.prototype._collidesOnXAxis = function(edges) {
-	var l = edges.lEdge;
-	var r = edges.rEdge;
-	var omx = edges.otherMiddleX;
-	var omy = edges.otherMiddleY;
-	return omx >= l && omx <= r;
+	var ol = edges.otherLEdge;
+	var or = edges.otherREdge;
+	var mx = edges.middleX;
+	var my = edges.middleY;
+	return mx >= ol && mx <= or;
 }
 
 Rectangle.prototype._collidesOnYAxis = function(edges) {
@@ -119,9 +119,9 @@ Rectangle.prototype._collidesOnYAxis = function(edges) {
 	var b = edges.bEdge;
 	var ot = edges.otherTEdge;
 	var ob = edges.otherBEdge;
-	var crossingTop = (ob >= t) && !(ot >= t) && (ot <= b) && (ob <= b);
-	var crossingBottom = (ob >= t) && (ot >= t) && (ot <= b) && !(ob <= b);
-	var inside = (ob >= t) && (ot >= t) && (ot <= b) && (ob <= b);
+	var crossingTop = (b >= ot) && !(t >= ot) && (t <= ob) && (b <= ob);
+	var crossingBottom = (b >= ot) && (t >= ot) && (t <= ob) && !(b <= ob);
+	var inside = (b >= ot) && (t >= ot) && (t <= ob) && (b <= ob);
 	return (crossingTop || crossingBottom || inside);
 }
 
@@ -134,8 +134,8 @@ Rectangle.prototype._checkIfOtherIsInside = function(edges) {
 	var or = edges.otherREdge;
 	var ot = edges.otherTEdge;
 	var ob = edges.otherBEdge;
-	var insideXAxis = or <= r && ol >= l;
-	var insideYAxis = ot >= t && ob <= b;
+	var insideXAxis = r <= or && l >= ol;
+	var insideYAxis = t >= ot && b <= ob;
 	return insideXAxis && insideYAxis;
 }
 
@@ -176,8 +176,8 @@ Floor.prototype._checkXCollision = function() {
 Floor.prototype._checkYCollision = function(edges) {
 	var collYEdge = undefined;
 	var collYEdgeStr = '';
-	if (edges.otherBEdge >= edges.tEdge) {
-		collYEdge = edges.tEdge;
+	if (edges.bEdge >= edges.otherTEdge) {
+		collYEdge = edges.otherTEdge;
 		collYEdgeStr = 't';
 	}
 	return {
@@ -218,13 +218,13 @@ Wall.prototype._checkXCollision = function(edges) {
 	var collXEdge = undefined;
 	var collXEdgeStr = '';
 	if (this.alignment === 'l') {
-		if (edges.otherLEdge < edges.rEdge) {
-			collXEdge = edges.rEdge;
+		if (edges.lEdge < edges.otherREdge) {
+			collXEdge = edges.otherREdge;
 			collXEdgeStr = 'r';
 		}
 	} else if (this.alignment === 'r') {
-		if (edges.otherREdge > edges.lEdge) {
-			collXEdge = edges.lEdge;
+		if (edges.rEdge > edges.otherLEdge) {
+			collXEdge = edges.otherLEdge;
 			collXEdgeStr = 'l';
 		}
 	}

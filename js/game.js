@@ -33,9 +33,9 @@ function start() {
  */
 function update(deltatime) {
 	world.update(deltatime);
-	player.update(deltatime);
+//	player.update(deltatime);
 	world.draw();
-	player.draw();
+//	player.draw();
 	effectsManager.drawEffects();
 
 	if (performance.now() > timeToBlobSpawn && blobs.length < maxBlobs) {
