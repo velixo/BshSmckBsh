@@ -68,10 +68,10 @@ Rectangle.prototype._checkXCollision = function(edges) {
 	var collOnYAxis = this._collidesOnYAxis(edges);
 	if (r >= ol && l <= ol && collOnYAxis) {
 		collXEdge = ol;
-		collXEdgeStr = 'l';
+		collXEdgeStr = 'r';
 	} else if (l <= or && r >= or && collOnYAxis) {
 		collXEdge = or;
-		collXEdgeStr = 'r';
+		collXEdgeStr = 'l';
 	} else {
 		collXEdge = undefined;
 		collXEdgeStr = '';
@@ -92,10 +92,10 @@ Rectangle.prototype._checkYCollision = function(edges) {
 	var collOnXAxis = this._collidesOnXAxis(edges);
 	if (b >= ot && t <= ot && collOnXAxis) {
 		collYEdge = ot;
-		collYEdgeStr = 't';
+		collYEdgeStr = 'b';
 	} else if (t <= ob && b >= ob && collOnXAxis) {
 		collYEdge = ob;
-		collYEdgeStr = 'b';
+		collYEdgeStr = 't';
 	} else {
 		collYEdge = undefined;
 		collYEdgeStr = '';
@@ -178,7 +178,7 @@ Floor.prototype._checkYCollision = function(edges) {
 	var collYEdgeStr = '';
 	if (edges.bEdge >= edges.otherTEdge) {
 		collYEdge = edges.otherTEdge;
-		collYEdgeStr = 't';
+		collYEdgeStr = 'b';
 	}
 	return {
 		collYEdge: collYEdge,
@@ -220,12 +220,12 @@ Wall.prototype._checkXCollision = function(edges) {
 	if (this.alignment === 'l') {
 		if (edges.lEdge < edges.otherREdge) {
 			collXEdge = edges.otherREdge;
-			collXEdgeStr = 'r';
+			collXEdgeStr = 'l';
 		}
 	} else if (this.alignment === 'r') {
 		if (edges.rEdge > edges.otherLEdge) {
 			collXEdge = edges.otherLEdge;
-			collXEdgeStr = 'l';
+			collXEdgeStr = 'r';
 		}
 	}
 

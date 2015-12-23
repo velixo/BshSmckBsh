@@ -60,20 +60,20 @@ Blob.prototype.update = function(deltatime) {
 		this._readCollisionEvent(collisions[i], deltatime);
 	}
 	if (this.rBlockedX !== undefined) {
-		this.x = this.rBlockedX;
-		this.deltaX = this.maxDeltaX;
-	}
-	if (this.lBlockedX !== undefined) {
-		this.x = this.lBlockedX - this.width;
+		this.x = this.rBlockedX - this.width;
 		this.deltaX = -this.maxDeltaX;
 	}
+	if (this.lBlockedX !== undefined) {
+		this.x = this.lBlockedX;
+		this.deltaX = this.maxDeltaX;
+	}
 	if (this.tBlockedY !== undefined) {
-		this.y = this.tBlockedY - this.height;
-		this.deltaY = -this.maxDeltaY;
+		this.y = this.tBlockedY;
+		this.deltaY = this.maxDeltaY;
 	}
 	if (this.bBlockedY !== undefined) {
-		this.y = this.bBlockedY;
-		this.deltaY = this.maxDeltaY;
+		this.y = this.bBlockedY - this.height;
+		this.deltaY = -this.maxDeltaY;
 	}
 
 	this.deltaY += this.deltaYGravity;
@@ -109,7 +109,7 @@ Blob.prototype._readCollisionEvent = function(collInfo, deltatime) {
 	var collEdgeStr = collInfo.collidedEdge;
 	if (collEdgeStr.indexOf('l') !== -1) {
 		if (this.lBlockedX !== undefined) {
-			this.lBlockedX = (this.lBlockedX < collInfo.collidedX) ? collInfo.collidedX : this.lBlockedX;
+			this.lBlockedX = (this.lBlockedX > collInfo.collidedX) ? collInfo.collidedX : this.lBlockedX;
 		} else {
 			this.lBlockedX = collInfo.collidedX;
 		}
@@ -117,7 +117,7 @@ Blob.prototype._readCollisionEvent = function(collInfo, deltatime) {
 
 	if (collEdgeStr.indexOf('r') !== -1) {
 		if (this.rBlockedX !== undefined) {
-			this.rBlockedX = (this.rBlockedX > collInfo.collidedX) ? collInfo.collidedX : this.rBlockedX;
+			this.rBlockedX = (this.rBlockedX < collInfo.collidedX) ? collInfo.collidedX : this.rBlockedX;
 		} else {
 			this.rBlockedX = collInfo.collidedX;
 		}
@@ -125,7 +125,7 @@ Blob.prototype._readCollisionEvent = function(collInfo, deltatime) {
 
 	if (collEdgeStr.indexOf('t') !== -1) {
 		if (this.tBlockedY !== undefined) {
-			this.tBlockedY = (this.tBlockedY > collInfo.collidedY) ? collInfo.collidedY : this.tBlockedY;
+			this.tBlockedY = (this.tBlockedY < collInfo.collidedY) ? collInfo.collidedY : this.tBlockedY;
 		} else {
 			this.tBlockedY = collInfo.collidedY;
 		}
@@ -133,7 +133,7 @@ Blob.prototype._readCollisionEvent = function(collInfo, deltatime) {
 
 	if (collEdgeStr.indexOf('b') !== -1) {
 		if (this.bBlockedY !== undefined) {
-			this.bBlockedY = (this.bBlockedY < collInfo.collidedY) ? collInfo.collidedY : this.bBlockedY;
+			this.bBlockedY = (this.bBlockedY > collInfo.collidedY) ? collInfo.collidedY : this.bBlockedY;
 		} else {
 			this.bBlockedY = collInfo.collidedY;
 		}
@@ -201,9 +201,9 @@ Player.prototype.update = function(deltatime) {
 	if (keyPressed.W && this.touchingSurface) {
 		this.yvel = -0.5;
 		if (this.lBlockedX !== undefined) {
-			this.xvel = -this.xvelMultiplier * this.jumpRatio;
-		} else if (this.rBlockedX !== undefined) {
 			this.xvel = this.xvelMultiplier * this.jumpRatio;
+		} else if (this.rBlockedX !== undefined) {
+			this.xvel = -this.xvelMultiplier * this.jumpRatio;
 		}
 	}
 
@@ -218,12 +218,12 @@ Player.prototype.update = function(deltatime) {
 
 	this.touchingSurface = this._checkTouchingSurface(this.lBlockedX, this.rBlockedX, this.tBlockedY, this.bBlockedY)
 	if (this.lBlockedX !== undefined) {
-		this.x = this.lBlockedX - this.width;
-		if (this.xvel > 0) this.xvel = 0;
+		this.x = this.lBlockedX;
+		if (this.xvel < 0) this.xvel = 0;
 	}
 	if (this.rBlockedX !== undefined) {
-		this.x = this.rBlockedX;
-		if (this.xvel < 0) this.xvel = 0;
+		this.x = this.rBlockedX - this.width;
+		if (this.xvel > 0) this.xvel = 0;
 	}
 	if (this.xdir !== 0) {
 		this.xvel = this.xvelMultiplier * this.xdir;
@@ -234,12 +234,12 @@ Player.prototype.update = function(deltatime) {
 	}
 	this.x += this.xvel * deltatime;
 
-	if (this.tBlockedY !== undefined && this.yvel > 0) {
-		this.y = this.tBlockedY - this.height;
-		this.yvel = 0;
-	} else if (this.bBlockedY !== undefined && this.yvel < 0) {
-		this.y = this.bBlockedY;
+	if (this.tBlockedY !== undefined && this.yvel < 0) {
+		this.y = this.tBlockedY;
 		this.yvel += this.yvelMultiplier;
+	} else if (this.bBlockedY !== undefined && this.yvel > 0) {
+		this.y = this.bBlockedY - this.height;
+		this.yvel = 0;
 	} else {
 		if (this.yvel >= this.yvelThreshold) {
 			this.yvel = this.yvelThreshold;
@@ -254,7 +254,7 @@ Player.prototype._readCollisionEvent = function(collInfo, deltatime) {
 	var collEdgeStr = collInfo.collidedEdge;
 	if (collEdgeStr.indexOf('l') !== -1) {
 		if (this.lBlockedX !== undefined) {
-			this.lBlockedX = (this.lBlockedX < collInfo.collidedX) ? collInfo.collidedX : this.lBlockedX;
+			this.lBlockedX = (this.lBlockedX > collInfo.collidedX) ? collInfo.collidedX : this.lBlockedX;
 		} else {
 			this.lBlockedX = collInfo.collidedX;
 		}
@@ -262,7 +262,7 @@ Player.prototype._readCollisionEvent = function(collInfo, deltatime) {
 
 	if (collEdgeStr.indexOf('r') !== -1) {
 		if (this.rBlockedX !== undefined) {
-			this.rBlockedX = (this.rBlockedX > collInfo.collidedX) ? collInfo.collidedX : this.rBlockedX;
+			this.rBlockedX = (this.rBlockedX < collInfo.collidedX) ? collInfo.collidedX : this.rBlockedX;
 		} else {
 			this.rBlockedX = collInfo.collidedX;
 		}
@@ -270,7 +270,7 @@ Player.prototype._readCollisionEvent = function(collInfo, deltatime) {
 
 	if (collEdgeStr.indexOf('t') !== -1) {
 		if (this.tBlockedY !== undefined) {
-			this.tBlockedY = (this.tBlockedY > collInfo.collidedY) ? collInfo.collidedY : this.tBlockedY;
+			this.tBlockedY = (this.tBlockedY < collInfo.collidedY) ? collInfo.collidedY : this.tBlockedY;
 		} else {
 			this.tBlockedY = collInfo.collidedY;
 		}
@@ -278,7 +278,7 @@ Player.prototype._readCollisionEvent = function(collInfo, deltatime) {
 
 	if (collEdgeStr.indexOf('b') !== -1) {
 		if (this.bBlockedY !== undefined) {
-			this.bBlockedY = (this.bBlockedY < collInfo.collidedY) ? collInfo.collidedY : this.bBlockedY;
+			this.bBlockedY = (this.bBlockedY > collInfo.collidedY) ? collInfo.collidedY : this.bBlockedY;
 		} else {
 			this.bBlockedY = collInfo.collidedY;
 		}
@@ -288,7 +288,7 @@ Player.prototype._readCollisionEvent = function(collInfo, deltatime) {
 Player.prototype._checkTouchingSurface = function () {
 	return this.lBlockedX !== undefined ||
 			this.rBlockedX !== undefined ||
-			this.tBlockedY !== undefined;
+			this.bBlockedY !== undefined;
 }
 
 function HitBox(player, dir) {
