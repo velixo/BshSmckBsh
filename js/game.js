@@ -42,6 +42,14 @@ function update(deltatime) {
 }
 
 function updateBlobs(deltatime) {
+	// clean out dead blobs
+	for (var i = 0; i < blobs.length; i++) {
+		if (blobs[i].dead) {
+			blobs.splice(i, 1);
+			i--;
+		}
+	};
+	// update the blobs
 	for (var i = 0; i < blobs.length; i++) {
 		blobs[i].update(deltatime);
 	};

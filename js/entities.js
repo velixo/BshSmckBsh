@@ -48,6 +48,7 @@ function Blob(x, y, height) {
 
 	this.deathFadeOutStart = 0;
 	this.deathFadeOutEnd = 0;
+	this.dead = false;
 }
 Blob.prototype = Object.create(Rectangle.prototype);
 Blob.prototype.update = function(deltatime) {
@@ -92,6 +93,7 @@ Blob.prototype.draw = function() {
 			drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, col, 1-fadeProgress);
 		} else {
 			world.remove(this);
+			this.dead = true;
 		}
 	}
 }
