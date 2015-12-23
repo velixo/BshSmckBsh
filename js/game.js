@@ -1,12 +1,7 @@
 /** This file is the main container of game logic.*/
 
 var world;
-var floor;
-var lwall;
-var rwall;
-var platform1;
-var platform2;
-var platform3;
+var level;
 
 var blobs;
 var player;
@@ -21,7 +16,7 @@ function start() {
 	console.log("game.start");
 	playerName = prompt("Enter your name:");
 	world = new World();
-	loadLevel1();
+	level = new Level1();
 	effectsManager = new EffectManager();
 	player = new Player(canvas.width / 2, 200, 40, effectsManager, playerName);
 	blobs = [];
@@ -32,14 +27,27 @@ function start() {
  * @param {number} deltatime The time since the last frame was rendered, in milliseconds.
  */
 function update(deltatime) {
-	world.update(deltatime);
-//	player.update(deltatime);
-	world.draw();
-//	player.draw();
+	level.update(deltatime);
+	player.update(deltatime);
+	updateBlobs(deltatime);
+	level.draw();
+	player.draw();
+	drawBlobs();
 	effectsManager.drawEffects();
 
 	if (performance.now() > timeToBlobSpawn && blobs.length < maxBlobs) {
 		timeToBlobSpawn = performance.now() + 2500;
 		blobs.push(new Blob(Math.floor(Math.random()*canvas.width), Math.floor(Math.random()*canvas.height), 20));
 	}
+}
+
+function updateBlobs(deltatime) {
+	for (var i = 0; i < blobs.length; i++) {
+		blobs[i].update(deltatime);
+	};
+}
+function drawBlobs() {
+	for (var i = 0; i < blobs.length; i++) {
+		blobs[i].draw();
+	};
 }
