@@ -216,7 +216,7 @@ Player.prototype.update = function(deltatime) {
 		this._readCollisionEvent(collisions[i], deltatime);
 	}
 
-	this.touchingSurface = this._checkTouchingSurface(this.lBlockedX, this.rBlockedX, this.tBlockedY, this.bBlockedY)
+	this.touchingSurface = this._checkTouchingSurface();
 	if (this.lBlockedX !== undefined) {
 		this.x = this.lBlockedX;
 		if (this.xvel < 0) this.xvel = 0;
