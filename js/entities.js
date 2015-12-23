@@ -52,6 +52,11 @@ function Blob(x, y, height) {
 }
 Blob.prototype = Object.create(Rectangle.prototype);
 Blob.prototype.update = function(deltatime) {
+	this._readCollisions(deltatime);
+	this._updateMovement(deltatime);
+}
+
+Blob.prototype._readCollisions = function(deltatime) {
 	this.lBlockedX = undefined;
 	this.rBlockedX = undefined;
 	this.tBlockedY = undefined;
@@ -60,6 +65,9 @@ Blob.prototype.update = function(deltatime) {
 	for (var i = 0; i < collisions.length; i++) {
 		this._readCollisionEvent(collisions[i], deltatime);
 	}
+}
+
+Blob.prototype._updateMovement = function(deltatime) {
 	if (this.rBlockedX !== undefined) {
 		this.x = this.rBlockedX - this.width;
 		this.deltaX = -this.maxDeltaX;
