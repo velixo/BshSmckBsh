@@ -170,8 +170,6 @@ function Player(x, y, height, effectsManager, playerName) {
 	this.bBlockedY = undefined;
 	this.touchingSurface = false;
 
-
-
 	this._onHit = function(argList) {
 		var effectsManager = argList[0];
 		var player = argList[1];
@@ -197,7 +195,7 @@ function Player(x, y, height, effectsManager, playerName) {
 	//add start animation for left arrow key
 	addKeyPressFunction(37, false, [effectsManager, this, 'l', world], this._onHit);
 }
-
+Player.prototype = Object.create(Rectangle.prototype);
 Player.prototype.draw = function() {
 	drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, '#00d');
 	drawText(this.x, this.y - 35, this.name, "#00d");
