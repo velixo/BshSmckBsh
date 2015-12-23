@@ -61,7 +61,7 @@ Blob.prototype._readCollisions = function(deltatime) {
 	this.rBlockedX = undefined;
 	this.tBlockedY = undefined;
 	this.bBlockedY = undefined;
-	var collisions = this.checkCollidesWithWorld();
+	var collisions = this.getCollisionsWithWorld();
 	for (var i = 0; i < collisions.length; i++) {
 		this._readCollisionEvent(collisions[i], deltatime);
 	}
@@ -221,7 +221,7 @@ Player.prototype.update = function(deltatime) {
 	this.rBlockedX = undefined;
 	this.tBlockedY = undefined;
 	this.bBlockedY = undefined;
-	var collisions = this.checkCollidesWithWorld();
+	var collisions = this.getCollisionsWithWorld();
 	for (var i = 0; i < collisions.length; i++) {
 		this._readCollisionEvent(collisions[i], deltatime);
 	}

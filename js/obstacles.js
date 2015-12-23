@@ -32,7 +32,7 @@ Rectangle.prototype.draw = function() {
 	drawRect(this.x, this.y, this.width, this.height);
 }
 
-Rectangle.prototype.checkCollidesWithWorld = function() {
+Rectangle.prototype.getCollisionsWithWorld = function() {
 	var collisions = [];
 	for (var i = 0; i < world.obstacles.length; i++) {
 		var collInfo = this.collidesWith(world.obstacles[i]);
