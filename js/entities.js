@@ -43,7 +43,7 @@ function Entity(x, y, name) {
 	this.name = evalArg(name, "entity")
 }
 
-function Blob(x, y, height, world) {
+function Blob(x, y, height) {
 	Rectangle.call(this, x, y, height, height, "blob", true);
 	this.deltaX = 0.4;
 	this.deltaY = 0.4;
@@ -51,7 +51,6 @@ function Blob(x, y, height, world) {
 	this.maxDeltaY = 0.9;
 	this.maxDeltaX = 0.4;
 	this.deltaYGravity = 0.013;
-	this.world = world;
 
 	this.lBlockedX = undefined;
 	this.rBlockedX = undefined;
@@ -67,7 +66,7 @@ Blob.prototype.update = function(deltatime) {
 	this.rBlockedX = undefined;
 	this.tBlockedY = undefined;
 	this.bBlockedY = undefined;
-	var collisions = this.world.checkCollision(this);
+	var collisions = world.checkCollision(this);
 	for (var i = 0; i < collisions.length; i++) {
 		this._readCollisionEvent(collisions[i], deltatime);
 	}
@@ -103,7 +102,7 @@ Blob.prototype.draw = function() {
 			var col = colorFloatToHex(1 - fadeProgress, 0, 0);
 			drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, col, 1-fadeProgress);
 		} else {
-			this.world.remove(this);
+			world.remove(this);
 		}
 	}
 }

@@ -40,6 +40,6 @@ function update(deltatime) {
 
 	if (performance.now() > timeToBlobSpawn && blobs.length < maxBlobs) {
 		timeToBlobSpawn = performance.now() + 2500;
-		blobs.push(new Blob(Math.floor(Math.random()*canvas.width), Math.floor(Math.random()*canvas.height), 20, world));
+		blobs.push(new Blob(Math.floor(Math.random()*canvas.width), Math.floor(Math.random()*canvas.height), 20));
 	}
 }
