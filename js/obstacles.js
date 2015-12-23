@@ -107,7 +107,11 @@ Rectangle.prototype._checkYCollision = function(edges) {
 }
 
 Rectangle.prototype._collidesOnXAxis = function(edges) {
-	return edges.otherMiddleX >= edges.lEdge && edges.otherMiddleX <= edges.rEdge;
+	var l = edges.lEdge;
+	var r = edges.rEdge;
+	var omx = edges.otherMiddleX;
+	var omy = edges.otherMiddleY;
+	return omx >= l && omx <= r;
 }
 
 Rectangle.prototype._collidesOnYAxis = function(edges) {
@@ -122,8 +126,16 @@ Rectangle.prototype._collidesOnYAxis = function(edges) {
 }
 
 Rectangle.prototype._checkIfOtherIsInside = function(edges) {
-	var insideXAxis = edges.otherREdge <= edges.rEdge && edges.otherLEdge >= edges.lEdge;
-	var insideYAxis = edges.otherTEdge >= edges.tEdge && edges.otherBEdge <= edges.bEdge;
+	var l = edges.lEdge;
+	var r = edges.rEdge;
+	var t = edges.tEdge;
+	var b = edges.bEdge;
+	var ol = edges.otherLEdge;
+	var or = edges.otherREdge;
+	var ot = edges.otherTEdge;
+	var ob = edges.otherBEdge;
+	var insideXAxis = or <= r && ol >= l;
+	var insideYAxis = ot >= t && ob <= b;
 	return insideXAxis && insideYAxis;
 }
 
@@ -133,6 +145,8 @@ Rectangle.prototype._getEdges = function(other) {
 		rEdge: this.x + this.width,
 		tEdge: this.y,
 		bEdge: this.y + this.height,
+		middleX: this.x + this.width / 2,
+		middleY: this.y + this.height / 2,
 		otherLEdge: other.x,
 		otherREdge: other.x + other.width,
 		otherTEdge: other.y,
