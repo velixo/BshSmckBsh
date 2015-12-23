@@ -16,7 +16,7 @@ function World() {
 	this.checkCollision = function(player) {
 		var collisions = [];
 		for (var i = 0; i < this.obstacles.length; i++) {
-			var collInfo = this.obstacles[i].getCollisionInfo(player);
+			var collInfo = this.obstacles[i].collidesWith(player);
 			if (collInfo !== null && collInfo.collidedObj !== player) {
 				collisions.push(collInfo);
 			}
@@ -153,146 +153,31 @@ Blob.prototype._readCollisionEvent = function(collInfo, deltatime) {
 }
 
 
-function Player(x, y, height, world, effectsManager) {
-	Rectangle.call(this, x, y, height, height, "player", false);
+function Player(x, y, height, effectsManager, playerName) {
+	Rectangle.call(this, x, y, height, height, playerName, false);
 	this.effectsManager = effectsManager;
-	var xdir = 0;
-	var xvel = 0.2;
-	var yvel = 0;
-	var xvelMultiplier = 0.5;
-	var yvelMultiplier = 0.02;
-	var yvelThreshold = 15;
-	var jumpRatio = 3;
-	var world = world;
+	this.xdir = 0;
+	this.xvel = 0.2;
+	this.yvel = 0;
+	this.xvelMultiplier = 0.5;
+	this.yvelMultiplier = 0.02;
+	this.yvelThreshold = 15;
+	this.jumpRatio = 3;
 
-	var lBlockedX = undefined;
-	var rBlockedX = undefined;
-	var tBlockedY = undefined;
-	var bBlockedY = undefined;
-	var touchingSurface = false;
+	this.lBlockedX = undefined;
+	this.rBlockedX = undefined;
+	this.tBlockedY = undefined;
+	this.bBlockedY = undefined;
+	this.touchingSurface = false;
 
-	this.update = function(deltatime) {
-		this._updatePos(deltatime);
-	};
 
-	this._updatePos = function(deltatime) {
-		touchingSurface = this._checkTouchingSurface(lBlockedX, rBlockedX, tBlockedY, bBlockedY)
 
-		xdir = 0;
-		if (keyPressed.D) {
-			xdir += 1;
-		}
-		if (keyPressed.A) {
-			xdir -= 1;
-		}
-		if (keyPressed.W && touchingSurface) {
-			yvel = -0.5;
-			if (lBlockedX !== undefined) {
-				xvel = -xvelMultiplier * jumpRatio;
-			} else if (rBlockedX !== undefined) {
-				xvel = xvelMultiplier * jumpRatio;
-			}
-		}
-
-		lBlockedX = undefined;
-		rBlockedX = undefined;
-		tBlockedY = undefined;
-		bBlockedY = undefined;
-		var collisions = world.checkCollision(this);
-		for (var i = 0; i < collisions.length; i++) {
-			this._readCollisionEvent(collisions[i], deltatime);
-		}
-
-		touchingSurface = this._checkTouchingSurface(lBlockedX, rBlockedX, tBlockedY, bBlockedY)
-		if (lBlockedX !== undefined) {
-			this.x = lBlockedX - this.width;
-			if (xvel > 0) xvel = 0;
-		}
-		if (rBlockedX !== undefined) {
-			this.x = rBlockedX;
-			if (xvel < 0) xvel = 0;
-		}
-		if (xdir !== 0) {
-			xvel = xvelMultiplier * xdir;
-		} else if (touchingSurface) {
-			xvel *= 0.8;
-		} else {
-			xvel *= 0.95;
-		}
-		this.x += xvel * deltatime;
-
-		if (tBlockedY !== undefined && yvel > 0) {
-			this.y = tBlockedY - this.height;
-			yvel = 0;
-		} else if (bBlockedY !== undefined && yvel < 0) {
-			this.y = bBlockedY;
-			yvel += yvelMultiplier;
-		} else {
-			if (yvel >= yvelThreshold) {
-				yvel = yvelThreshold;
-			} else {
-				yvel += yvelMultiplier;
-			}
-			this.y += yvel * deltatime;
-		}
-	}
-
-	this._readCollisionEvent = function(collInfo, deltatime) {
-		var collEdgeStr = collInfo.collidedEdge;
-		if (collEdgeStr.indexOf('l') !== -1) {
-			if (lBlockedX !== undefined) {
-				lBlockedX = (lBlockedX < collInfo.collidedX) ? collInfo.collidedX : lBlockedX;
-			} else {
-				lBlockedX = collInfo.collidedX;
-			}
-		}
-
-		if (collEdgeStr.indexOf('r') !== -1) {
-			if (rBlockedX !== undefined) {
-				rBlockedX = (rBlockedX > collInfo.collidedX) ? collInfo.collidedX : rBlockedX;
-			} else {
-				rBlockedX = collInfo.collidedX;
-			}
-		}
-
-		if (collEdgeStr.indexOf('t') !== -1) {
-			if (tBlockedY !== undefined) {
-				tBlockedY = (tBlockedY > collInfo.collidedY) ? collInfo.collidedY : tBlockedY;
-			} else {
-				tBlockedY = collInfo.collidedY;
-			}
-		}
-
-		if (collEdgeStr.indexOf('b') !== -1) {
-			if (bBlockedY !== undefined) {
-				bBlockedY = (bBlockedY < collInfo.collidedY) ? collInfo.collidedY : bBlockedY;
-			} else {
-				bBlockedY = collInfo.collidedY;
-			}
-		}
-	}
-
-	this._checkTouchingSurface = function (lBlockedX, rBlockedX, tBlockedY, bBlockedY) {
-		return lBlockedX !== undefined ||
-				rBlockedX !== undefined ||
-				tBlockedY !== undefined;
-	}
-
-	//add start animation for up arrow key
-	addKeyPressFunction(38, false, [effectsManager, this, 'u', world], onHit);
-	//add start animation for right arrow key
-	addKeyPressFunction(39, false, [effectsManager, this, 'r', world], onHit);
-	//add start animation for down arrow key
-	addKeyPressFunction(40, false, [effectsManager, this, 'd', world], onHit);
-	//add start animation for left arrow key
-	addKeyPressFunction(37, false, [effectsManager, this, 'l', world], onHit);
-
-	function onHit(argList) {
+	this._onHit = function(argList) {
 		var effectsManager = argList[0];
 		var player = argList[1];
 		var dir = argList[2];
 		var world = argList[3];
-		var collisions = (new HitBox(player, dir)).checkCollisions(world);
+		var collisions = (new HitBox(player, dir)).checkCollisionsWithWorld();
 		if (collisions !== null || collisions !== undefined) {
 			for (var i = 0; i < collisions.length; i++) {
 				if (collisions[i].collidedObj.name === 'blob') {
@@ -302,6 +187,122 @@ function Player(x, y, height, world, effectsManager) {
 		}
 		effectsManager.startEffect(player, 'hit', dir);
 	}
+
+	//add start animation for up arrow key
+	addKeyPressFunction(38, false, [effectsManager, this, 'u', world], this._onHit);
+	//add start animation for right arrow key
+	addKeyPressFunction(39, false, [effectsManager, this, 'r', world], this._onHit);
+	//add start animation for down arrow key
+	addKeyPressFunction(40, false, [effectsManager, this, 'd', world], this._onHit);
+	//add start animation for left arrow key
+	addKeyPressFunction(37, false, [effectsManager, this, 'l', world], this._onHit);
+}
+
+Player.prototype.draw = function() {
+	drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, '#00d');
+	drawText(this.x, this.y - 35, this.name, "#00d");
+}
+
+Player.prototype.update = function(deltatime) {
+	this.touchingSurface = this._checkTouchingSurface();
+	this.xdir = 0;
+	if (keyPressed.D) {
+		this.xdir += 1;
+	}
+	if (keyPressed.A) {
+		this.xdir -= 1;
+	}
+	if (keyPressed.W && this.touchingSurface) {
+		this.yvel = -0.5;
+		if (this.lBlockedX !== undefined) {
+			this.xvel = -this.xvelMultiplier * this.jumpRatio;
+		} else if (this.rBlockedX !== undefined) {
+			this.xvel = this.xvelMultiplier * this.jumpRatio;
+		}
+	}
+
+	this.lBlockedX = undefined;
+	this.rBlockedX = undefined;
+	this.tBlockedY = undefined;
+	this.bBlockedY = undefined;
+	var collisions = world.checkCollision(this);
+	for (var i = 0; i < collisions.length; i++) {
+		this._readCollisionEvent(collisions[i], deltatime);
+	}
+
+	this.touchingSurface = this._checkTouchingSurface(this.lBlockedX, this.rBlockedX, this.tBlockedY, this.bBlockedY)
+	if (this.lBlockedX !== undefined) {
+		this.x = this.lBlockedX - this.width;
+		if (this.xvel > 0) this.xvel = 0;
+	}
+	if (this.rBlockedX !== undefined) {
+		this.x = this.rBlockedX;
+		if (this.xvel < 0) this.xvel = 0;
+	}
+	if (this.xdir !== 0) {
+		this.xvel = this.xvelMultiplier * this.xdir;
+	} else if (this.touchingSurface) {
+		this.xvel *= 0.8;
+	} else {
+		this.xvel *= 0.95;
+	}
+	this.x += this.xvel * deltatime;
+
+	if (this.tBlockedY !== undefined && this.yvel > 0) {
+		this.y = this.tBlockedY - this.height;
+		this.yvel = 0;
+	} else if (this.bBlockedY !== undefined && this.yvel < 0) {
+		this.y = this.bBlockedY;
+		this.yvel += this.yvelMultiplier;
+	} else {
+		if (this.yvel >= this.yvelThreshold) {
+			this.yvel = this.yvelThreshold;
+		} else {
+			this.yvel += this.yvelMultiplier;
+		}
+		this.y += this.yvel * deltatime;
+	}
+}
+
+Player.prototype._readCollisionEvent = function(collInfo, deltatime) {
+	var collEdgeStr = collInfo.collidedEdge;
+	if (collEdgeStr.indexOf('l') !== -1) {
+		if (this.lBlockedX !== undefined) {
+			this.lBlockedX = (this.lBlockedX < collInfo.collidedX) ? collInfo.collidedX : this.lBlockedX;
+		} else {
+			this.lBlockedX = collInfo.collidedX;
+		}
+	}
+
+	if (collEdgeStr.indexOf('r') !== -1) {
+		if (this.rBlockedX !== undefined) {
+			this.rBlockedX = (this.rBlockedX > collInfo.collidedX) ? collInfo.collidedX : this.rBlockedX;
+		} else {
+			this.rBlockedX = collInfo.collidedX;
+		}
+	}
+
+	if (collEdgeStr.indexOf('t') !== -1) {
+		if (this.tBlockedY !== undefined) {
+			this.tBlockedY = (this.tBlockedY > collInfo.collidedY) ? collInfo.collidedY : this.tBlockedY;
+		} else {
+			this.tBlockedY = collInfo.collidedY;
+		}
+	}
+
+	if (collEdgeStr.indexOf('b') !== -1) {
+		if (this.bBlockedY !== undefined) {
+			this.bBlockedY = (this.bBlockedY < collInfo.collidedY) ? collInfo.collidedY : this.bBlockedY;
+		} else {
+			this.bBlockedY = collInfo.collidedY;
+		}
+	}
+}
+
+Player.prototype._checkTouchingSurface = function () {
+	return this.lBlockedX !== undefined ||
+			this.rBlockedX !== undefined ||
+			this.tBlockedY !== undefined;
 }
 
 function HitBox(player, dir) {
@@ -323,24 +324,24 @@ function HitBox(player, dir) {
 		return null;
 	}
 }
-HitBox.prototype.checkCollisions = function(world) {
+HitBox.prototype.checkCollisionsWithWorld = function() {
 	var collisions = [];
 	for (var i = 0; i < world.obstacles.length; i++) {
 		var collInfo = this.collidesWith(world.obstacles[i]);
 		if (collInfo !== null) collisions.push(collInfo);
 	};
 	return collisions;
-
 }
+
 HitBox.prototype.collidesWith = function(other) {
-	l = this.x;
-	r = this.x + this.width;
-	t = this.y;
-	b = this.y + this.height;
-	ol = other.x;
-	or = other.x + other.width;
-	ot = other.y;
-	ob = other.y + other.height;
+	var l = this.x;
+	var r = this.x + this.width;
+	var t = this.y;
+	var b = this.y + this.height;
+	var ol = other.x;
+	var or = other.x + other.width;
+	var ot = other.y;
+	var ob = other.y + other.height;
 
 	var crossingLeft = (or > l) && !(ol > l) && (ol < r) && (or < r);
 	var crossingRight = (or > l) && (ol > l) && (ol < r) && !(or < r);

@@ -23,7 +23,7 @@ function start() {
 	world = new World();
 	loadLevel1();
 	effectsManager = new EffectManager();
-	player = new Player(canvas.width / 2, 200, 40, world, effectsManager);
+	player = new Player(canvas.width / 2, 200, 40, effectsManager, playerName);
 	blobs = [];
 	timeToBlobSpawn = performance.now();
 }
@@ -35,8 +35,7 @@ function update(deltatime) {
 	world.update(deltatime);
 	player.update(deltatime);
 	world.draw();
-	drawCircle(player.x + player.width/2, player.y + player.width/2, player.width/2, '#00d');
-	drawText(player.x, player.y - 35, playerName, "#00d");
+	player.draw();
 	effectsManager.drawEffects();
 
 	if (performance.now() > timeToBlobSpawn && blobs.length < maxBlobs) {
