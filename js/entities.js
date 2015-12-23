@@ -158,7 +158,7 @@ function Player(x, y, height, effectsManager, playerName) {
 	this.xvel = 0.2;
 	this.yvel = 0;
 	this.xvelMultiplier = 0.5;
-	this.yvelMultiplier = 0.02;
+	this.yGravity = 0.02;
 	this.yvelThreshold = 15;
 	this.jumpRatio = 3;
 
@@ -200,67 +200,24 @@ Player.prototype.draw = function() {
 }
 
 Player.prototype.update = function(deltatime) {
-	this.touchingSurface = this._checkTouchingSurface();
-	this.xdir = 0;
-	if (keyPressed.D) {
-		this.xdir += 1;
-	}
-	if (keyPressed.A) {
-		this.xdir -= 1;
-	}
-	if (keyPressed.W && this.touchingSurface) {
-		this.yvel = -0.5;
-		if (this.lBlockedX !== undefined) {
-			this.xvel = this.xvelMultiplier * this.jumpRatio;
-		} else if (this.rBlockedX !== undefined) {
-			this.xvel = -this.xvelMultiplier * this.jumpRatio;
-		}
-	}
+	this._readCollisions();
+	this._readInput();
+	this._applyMovementX(deltatime);
+	this._applyMovementY(deltatime);
+}
 
+Player.prototype._readCollisions = function() {
 	this.lBlockedX = undefined;
 	this.rBlockedX = undefined;
 	this.tBlockedY = undefined;
 	this.bBlockedY = undefined;
 	var collisions = this.getCollisionsWithWorld();
 	for (var i = 0; i < collisions.length; i++) {
-		this._readCollisionEvent(collisions[i], deltatime);
-	}
-
-	this.touchingSurface = this._checkTouchingSurface();
-	if (this.lBlockedX !== undefined) {
-		this.x = this.lBlockedX;
-		if (this.xvel < 0) this.xvel = 0;
-	}
-	if (this.rBlockedX !== undefined) {
-		this.x = this.rBlockedX - this.width;
-		if (this.xvel > 0) this.xvel = 0;
-	}
-	if (this.xdir !== 0) {
-		this.xvel = this.xvelMultiplier * this.xdir;
-	} else if (this.touchingSurface) {
-		this.xvel *= 0.8;
-	} else {
-		this.xvel *= 0.95;
-	}
-	this.x += this.xvel * deltatime;
-
-	if (this.tBlockedY !== undefined && this.yvel < 0) {
-		this.y = this.tBlockedY;
-		this.yvel += this.yvelMultiplier;
-	} else if (this.bBlockedY !== undefined && this.yvel > 0) {
-		this.y = this.bBlockedY - this.height;
-		this.yvel = 0;
-	} else {
-		if (this.yvel >= this.yvelThreshold) {
-			this.yvel = this.yvelThreshold;
-		} else {
-			this.yvel += this.yvelMultiplier;
-		}
-		this.y += this.yvel * deltatime;
+		this._readCollisionEvent(collisions[i]);
 	}
 }
 
-Player.prototype._readCollisionEvent = function(collInfo, deltatime) {
+Player.prototype._readCollisionEvent = function(collInfo) {
 	var collEdgeStr = collInfo.collidedEdge;
 	if (collEdgeStr.indexOf('l') !== -1) {
 		if (this.lBlockedX !== undefined) {
@@ -293,6 +250,66 @@ Player.prototype._readCollisionEvent = function(collInfo, deltatime) {
 			this.bBlockedY = collInfo.collidedY;
 		}
 	}
+}
+
+Player.prototype._readInput = function() {
+	this.touchingSurface = this._checkTouchingSurface();
+	this.xdir = 0;
+	this.jump = false;
+	if (keyPressed.D) {
+		this.xdir += 1;
+	}
+	if (keyPressed.A) {
+		this.xdir -= 1;
+	}
+	if (keyPressed.W && this.touchingSurface) {
+		this.jump = true;
+	}
+}
+
+Player.prototype._applyMovementX = function(deltatime) {
+	if (this.lBlockedX !== undefined) {
+		this.x = this.lBlockedX;
+		if (this.jump) {
+			this.xvel = this.xvelMultiplier * this.jumpRatio;
+		} else if (this.xvel < 0) {
+			this.xvel = 0;
+		}
+	}
+	if (this.rBlockedX !== undefined) {
+		this.x = this.rBlockedX - this.width;
+		if (this.jump) {
+			this.xvel = -this.xvelMultiplier * this.jumpRatio;
+		} else if (this.xvel > 0) {
+			this.xvel = 0;
+		}
+	}
+
+	if (this.xdir !== 0) {
+		this.xvel = this.xvelMultiplier * this.xdir;
+	} else if (this.touchingSurface) {
+		this.xvel *= 0.8;
+	} else {
+		this.xvel *= 0.95;
+	}
+	this.x += this.xvel * deltatime;
+}
+
+Player.prototype._applyMovementY = function(deltatime) {
+	if (this.tBlockedY !== undefined && this.yvel < 0) {
+		this.y = this.tBlockedY;
+		this.yvel += this.yGravity;
+	} else if (this.bBlockedY !== undefined && this.yvel > 0) {
+		this.y = this.bBlockedY - this.height;
+		this.yvel = 0;
+	} else {
+		if (this.yvel >= this.yvelThreshold) {
+			this.yvel = this.yvelThreshold;
+		}
+		if (this.jump) this.yvel = -0.5;
+		this.yvel += this.yGravity;
+	}
+	this.y += this.yvel * deltatime;
 }
 
 Player.prototype._checkTouchingSurface = function () {
