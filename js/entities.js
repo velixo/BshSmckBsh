@@ -151,16 +151,19 @@ Blob.prototype._readCollisionEvent = function(collInfo, deltatime) {
 }
 
 
-function Player(x, y, height, effectsManager, playerName) {
+function Player(x, y, height, playerName) {
 	Rectangle.call(this, x, y, height, height, playerName, true);
-	this.effectsManager = effectsManager;
-	this.xdir = 0;
-	this.xvel = 0.2;
-	this.yvel = 0;
-	this.xvelMultiplier = 0.5;
-	this.yGravity = 0.02;
-	this.yvelThreshold = 15;
-	this.jumpRatio = 3;
+	this.xDir = 0;
+	this.xVel = 0.2;
+	this.yVel = 0;
+
+	this.baseXVel = 0.5;
+	this.jumpYVel = -0.55;
+	this.wallJumpXVel = 1.6;
+	this.maxYVel = 15;
+	this.gravity = 0.02;
+	this.xDragGround = 0.8;
+	this.xDragAir = 0.955;
 
 	this.lBlockedX = undefined;
 	this.rBlockedX = undefined;
@@ -254,62 +257,62 @@ Player.prototype._readCollisionEvent = function(collInfo) {
 
 Player.prototype._readInput = function() {
 	this.touchingSurface = this._checkTouchingSurface();
-	this.xdir = 0;
-	this.jump = false;
+	this.xDir = 0;
+	this.jumped = false;
 	if (keyPressed.D) {
-		this.xdir += 1;
+		this.xDir += 1;
 	}
 	if (keyPressed.A) {
-		this.xdir -= 1;
+		this.xDir -= 1;
 	}
 	if (keyPressed.W && this.touchingSurface) {
-		this.jump = true;
+		this.jumped = true;
 	}
 }
 
 Player.prototype._applyMovementX = function(deltatime) {
 	if (this.lBlockedX !== undefined) {
 		this.x = this.lBlockedX;
-		if (this.jump) {
-			this.xvel = this.xvelMultiplier * this.jumpRatio;
-		} else if (this.xvel < 0) {
-			this.xvel = 0;
+		if (this.jumped) {
+			this.xVel = this.wallJumpXVel;
+		} else if (this.xVel < 0) {
+			this.xVel = 0;
 		}
 	}
 	if (this.rBlockedX !== undefined) {
 		this.x = this.rBlockedX - this.width;
-		if (this.jump) {
-			this.xvel = -this.xvelMultiplier * this.jumpRatio;
-		} else if (this.xvel > 0) {
-			this.xvel = 0;
+		if (this.jumped) {
+			this.xVel = -this.wallJumpXVel;
+		} else if (this.xVel > 0) {
+			this.xVel = 0;
 		}
 	}
 
-	if (this.xdir !== 0) {
-		this.xvel = this.xvelMultiplier * this.xdir;
+	if (this.xDir !== 0) {
+		this.xVel = this.baseXVel * this.xDir;
 	} else if (this.touchingSurface) {
-		this.xvel *= 0.8;
+		this.xVel *= this.xDragGround;
 	} else {
-		this.xvel *= 0.95;
+		this.xVel *= this.xDragAir;
 	}
-	this.x += this.xvel * deltatime;
+	this.x += this.xVel * deltatime;
 }
 
 Player.prototype._applyMovementY = function(deltatime) {
-	if (this.tBlockedY !== undefined && this.yvel < 0) {
+	if (this.tBlockedY !== undefined && this.yVel < 0) {
 		this.y = this.tBlockedY;
-		this.yvel += this.yGravity;
-	} else if (this.bBlockedY !== undefined && this.yvel > 0) {
+		this.yVel += this.gravity;
+	} else if (this.bBlockedY !== undefined && this.yVel > 0) {
 		this.y = this.bBlockedY - this.height;
-		this.yvel = 0;
+		this.yVel = 0;
 	} else {
-		if (this.yvel >= this.yvelThreshold) {
-			this.yvel = this.yvelThreshold;
+		if (this.yVel >= this.maxYVel) {
+			this.yVel = this.maxYVel;
 		}
-		if (this.jump) this.yvel = -0.5;
-		this.yvel += this.yGravity;
+		if (this.jumped) this.yVel = this.jumpYVel;
+		this.yVel += this.gravity;
 	}
-	this.y += this.yvel * deltatime;
+	this.y += this.yVel * deltatime;
 }
 
 Player.prototype._checkTouchingSurface = function () {

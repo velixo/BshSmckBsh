@@ -18,7 +18,7 @@ function start() {
 	world = new World();
 	level = new Level1();
 	effectsManager = new EffectManager();
-	player = new Player(canvas.width / 2, 200, 40, effectsManager, playerName);
+	player = new Player(canvas.width / 2, 200, 40, playerName);
 	blobs = [];
 	timeToBlobSpawn = performance.now();
 }
