@@ -34,18 +34,18 @@ function Entity(x, y, name) {
 
 function Blob(x, y, height) {
 	Rectangle.call(this, x, y, height, height, "blob", true);
-	this.deltaX = 0.4;
-	this.deltaY = 0.4;
-	this.health = 1;
-	this.maxDeltaY = 0.9;
-	this.maxDeltaX = 0.4;
-	this.deltaYGravity = 0.013;
+	this.maxXVel = 0.4;
+	this.maxYVel = 0.9;
+	this.xVel = this.maxXVel;
+	this.yVel = this.maxYVel;
+	this.gravity = 0.013;
 
 	this.lBlockedX = undefined;
 	this.rBlockedX = undefined;
 	this.tBlockedY = undefined;
 	this.bBlockedY = undefined;
 
+	this.health = 1;
 	this.deathFadeOutStart = 0;
 	this.deathFadeOutEnd = 0;
 	this.dead = false;
@@ -70,24 +70,24 @@ Blob.prototype._readCollisions = function(deltatime) {
 Blob.prototype._updateMovement = function(deltatime) {
 	if (this.rBlockedX !== undefined) {
 		this.x = this.rBlockedX - this.width;
-		this.deltaX = -this.maxDeltaX;
+		this.xVel = -this.maxXVel;
 	}
 	if (this.lBlockedX !== undefined) {
 		this.x = this.lBlockedX;
-		this.deltaX = this.maxDeltaX;
+		this.xVel = this.maxXVel;
 	}
 	if (this.tBlockedY !== undefined) {
 		this.y = this.tBlockedY;
-		this.deltaY = this.maxDeltaY;
+		this.yVel = this.maxYVel;
 	}
 	if (this.bBlockedY !== undefined) {
 		this.y = this.bBlockedY - this.height;
-		this.deltaY = -this.maxDeltaY;
+		this.yVel = -this.maxYVel;
 	}
 
-	this.deltaY += this.deltaYGravity;
-	this.x += this.deltaX * deltatime;
-	this.y += this.deltaY * deltatime;
+	this.yVel += this.gravity;
+	this.x += this.xVel * deltatime;
+	this.y += this.yVel * deltatime;
 }
 
 Blob.prototype.draw = function() {
