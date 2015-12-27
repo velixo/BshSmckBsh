@@ -67,7 +67,7 @@ Rectangle.prototype._checkXCollision = function(edges) {
 
 	var collXEdge = undefined;
 	var collXEdgeStr = '';
-	if (this._collidesOnYAxis(edges)) {
+	if (this.__collidesOnYAxis(edges)) {
 		if (crossingRight) {
 			collXEdge = ol;
 			collXEdgeStr = 'r';
@@ -98,7 +98,7 @@ Rectangle.prototype._checkYCollision = function(edges) {
 
 	var collYEdge = undefined;
 	var collYEdgeStr = '';
-	if (this._collidesOnXAxis(edges)) {
+	if (this.__collidesOnXAxis(edges)) {
 		if (crossingBottom) {
 			collYEdge = ot;
 			collYEdgeStr = 'b';
@@ -116,7 +116,7 @@ Rectangle.prototype._checkYCollision = function(edges) {
 	};
 }
 
-Rectangle.prototype._collidesOnXAxis = function(edges) {
+Rectangle.prototype.__collidesOnXAxis = function(edges) {
 	var ol = edges.otherLEdge;
 	var or = edges.otherREdge;
 	var mx = edges.middleX;
@@ -124,7 +124,7 @@ Rectangle.prototype._collidesOnXAxis = function(edges) {
 	return mx > ol && mx < or;
 }
 
-Rectangle.prototype._collidesOnYAxis = function(edges) {
+Rectangle.prototype.__collidesOnYAxis = function(edges) {
 	var t = edges.tEdge;
 	var b = edges.bEdge;
 	var ot = edges.otherTEdge;
@@ -135,20 +135,6 @@ Rectangle.prototype._collidesOnYAxis = function(edges) {
 	var crossingBottom = (b > ot) && !(t > ot);
 	var inside = (b > ot) && (t > ot) && (t < ob) && (b < ob);
 	return (crossingTop || crossingBottom || inside);
-}
-
-Rectangle.prototype._checkIfOtherIsInside = function(edges) {
-	var l = edges.lEdge;
-	var r = edges.rEdge;
-	var t = edges.tEdge;
-	var b = edges.bEdge;
-	var ol = edges.otherLEdge;
-	var or = edges.otherREdge;
-	var ot = edges.otherTEdge;
-	var ob = edges.otherBEdge;
-	var insideXAxis = r <= or && l >= ol;
-	var insideYAxis = t >= ot && b <= ob;
-	return insideXAxis && insideYAxis;
 }
 
 Rectangle.prototype._getEdges = function(other) {
@@ -179,24 +165,6 @@ Floor.prototype.update = function() {
 	this.y = canvas.height - this.height;
 	this.width = canvas.width;
 }
-Floor.prototype._checkXCollision = function() {
-	return {
-		collXEdge: undefined,
-		collXEdgeStr: ''
-	};
-}
-Floor.prototype._checkYCollision = function(edges) {
-	var collYEdge = undefined;
-	var collYEdgeStr = '';
-	if (edges.bEdge >= edges.otherTEdge) {
-		collYEdge = edges.otherTEdge;
-		collYEdgeStr = 'b';
-	}
-	return {
-		collYEdge: collYEdge,
-		collYEdgeStr: collYEdgeStr
-	};
-}
 
 
 
@@ -210,7 +178,6 @@ function Wall(alignment, thickness) {
 		Rectangle.call(this, canvas.width - thickness, 0, thickness, canvas.height, alignment + " wall");
 	}
 }
-
 Wall.prototype = Object.create(Rectangle.prototype);
 Wall.prototype.update = function() {
 	if (this.alignment === 'l') {
@@ -219,30 +186,4 @@ Wall.prototype.update = function() {
 		this.x = canvas.width - this.width;
 	}
 	this.height = canvas.height;
-}
-Wall.prototype._checkYCollision = function() {
-	return {
-		collYEdge: undefined,
-		collYEdgeStr: ''
-	};
-}
-Wall.prototype._checkXCollision = function(edges) {
-	var collXEdge = undefined;
-	var collXEdgeStr = '';
-	if (this.alignment === 'l') {
-		if (edges.lEdge < edges.otherREdge) {
-			collXEdge = edges.otherREdge;
-			collXEdgeStr = 'l';
-		}
-	} else if (this.alignment === 'r') {
-		if (edges.rEdge > edges.otherLEdge) {
-			collXEdge = edges.otherLEdge;
-			collXEdgeStr = 'r';
-		}
-	}
-
-	return {
-		collXEdge: collXEdge,
-		collXEdgeStr: collXEdgeStr
-	};
 }

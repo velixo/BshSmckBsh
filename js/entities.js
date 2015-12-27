@@ -63,7 +63,7 @@ Blob.prototype._readCollisions = function(deltatime) {
 	this.bBlockedY = undefined;
 	var collisions = this.getCollisionsWithWorld();
 	for (var i = 0; i < collisions.length; i++) {
-		this._readCollisionEvent(collisions[i], deltatime);
+		this.__readCollisionEvent(collisions[i], deltatime);
 	}
 }
 
@@ -115,7 +115,7 @@ Blob.prototype.destroy = function() {
 	};
 }
 
-Blob.prototype._readCollisionEvent = function(collInfo, deltatime) {
+Blob.prototype.__readCollisionEvent = function(collInfo, deltatime) {
 	var collEdgeStr = collInfo.collidedEdge;
 	if (collEdgeStr.indexOf('l') !== -1) {
 		if (this.lBlockedX !== undefined) {
@@ -216,11 +216,11 @@ Player.prototype._readCollisions = function() {
 	this.bBlockedY = undefined;
 	var collisions = this.getCollisionsWithWorld();
 	for (var i = 0; i < collisions.length; i++) {
-		this._readCollisionEvent(collisions[i]);
+		this.__readCollisionEvent(collisions[i]);
 	}
 }
 
-Player.prototype._readCollisionEvent = function(collInfo) {
+Player.prototype.__readCollisionEvent = function(collInfo) {
 	var collEdgeStr = collInfo.collidedEdge;
 	if (collEdgeStr.indexOf('l') !== -1) {
 		if (this.lBlockedX !== undefined) {
@@ -256,7 +256,7 @@ Player.prototype._readCollisionEvent = function(collInfo) {
 }
 
 Player.prototype._readInput = function() {
-	this.touchingSurface = this._checkTouchingSurface();
+	this.touchingSurface = this.__checkTouchingSurface();
 	this.xDir = 0;
 	this.jumped = false;
 	if (keyPressed.D) {
@@ -315,7 +315,7 @@ Player.prototype._applyMovementY = function(deltatime) {
 	this.y += this.yVel * deltatime;
 }
 
-Player.prototype._checkTouchingSurface = function () {
+Player.prototype.__checkTouchingSurface = function () {
 	return this.lBlockedX !== undefined ||
 			this.rBlockedX !== undefined ||
 			this.bBlockedY !== undefined;
