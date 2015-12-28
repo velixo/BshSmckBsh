@@ -178,13 +178,18 @@ Rectangle.prototype._getEdges = function(other) {
 
 
 function Floor(thickness) {
-	Rectangle.call(this, 0, canvas.height - thickness, canvas.width, thickness, "floor");
-	this.name = 'floor';
+	this.adjustment = 1000;
+	this.thickness = thickness;
+	Rectangle.call(this, 0, canvas.height - thickness, canvas.width, thickness + this.adjustment, "floor");
 }
 Floor.prototype = Object.create(Rectangle.prototype);
 Floor.prototype.update = function() {
-	this.y = canvas.height - this.height;
+	this.y = canvas.height - this.thickness;
 	this.width = canvas.width;
+}
+
+Floor.prototype.draw = function() {
+	drawRect(this.x, this.y, this.width, this.thickness);
 }
 
 
@@ -192,19 +197,28 @@ Floor.prototype.update = function() {
 
 function Wall(alignment, thickness) {
 	this.alignment = alignment;
-
+	this.thickness = thickness;
+	this.adjustment = 1000;
 	if (alignment === 'l') {
-		Rectangle.call(this, 0, 0, thickness, canvas.height, alignment + " wall");
+		Rectangle.call(this, 0 - this.adjustment, 0, thickness + this.adjustment, canvas.height, alignment + " wall");
 	} else if (alignment === 'r') {
-		Rectangle.call(this, canvas.width - thickness, 0, thickness, canvas.height, alignment + " wall");
+		Rectangle.call(this, canvas.width - thickness, 0, thickness + this.adjustment, canvas.height, alignment + " wall");
 	}
 }
 Wall.prototype = Object.create(Rectangle.prototype);
 Wall.prototype.update = function() {
 	if (this.alignment === 'l') {
-		this.x = 0;
+		this.x = 0 - this.adjustment;
 	} else if (this.alignment === 'r') {
-		this.x = canvas.width - this.width;
+		this.x = canvas.width - this.thickness;
 	}
 	this.height = canvas.height;
+}
+
+Wall.prototype.draw = function() {
+	if (this.alignment === 'l') {
+		drawRect(this.x + this.adjustment, this.y, this.thickness, this.height);
+	} else if (this.alignment === 'r') {
+		drawRect(this.x, this.y, this.thickness, this.height);
+	}
 }
