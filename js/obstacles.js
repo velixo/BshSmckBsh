@@ -59,11 +59,16 @@ Rectangle.prototype._checkXCollision = function(edges) {
 	var r = edges.rEdge;
 	var ol = edges.otherLEdge;
 	var or = edges.otherREdge;
+	var t = edges.tEdge;
+	var b = edges.bEdge;
+	var ot = edges.otherTEdge;
+	var ob = edges.otherBEdge;
 	var mx = edges.middleX;
 
 	var crossingLeft = (l < or) && !(r < or);
 	var crossingRight = (r > ol) && !(l > ol);
 	var insideX = (r > ol) && (l > ol) && (l < or) && (r < or);
+	var insideY = (b > ot) && (t > ot) && (t < ob) && (b < ob);
 
 	var collXEdge = undefined;
 	var collXEdgeStr = '';
@@ -74,9 +79,15 @@ Rectangle.prototype._checkXCollision = function(edges) {
 		} else if (crossingLeft) {
 			collXEdge = or;
 			collXEdgeStr = 'l';
-		} else if (insideX) {
-			collXEdge = (mx - l < r - mx) ? l : r;
-			collXEdgeStr = 'i';
+		} else if (insideX && insideY) {
+//			console.log('insideX mx-ol=' + (mx - ol) + ' or-mx=' + (or - mx));
+			if (mx - ol <= or - mx) {
+				collXEdge = ol;
+				collXEdgeStr = 'r';
+			} else {
+				collXEdge = or;
+				collXEdgeStr = 'lw';
+			}
 		}
 	}
 	return {
@@ -90,11 +101,16 @@ Rectangle.prototype._checkYCollision = function(edges) {
 	var b = edges.bEdge;
 	var ot = edges.otherTEdge;
 	var ob = edges.otherBEdge;
+	var l = edges.lEdge;
+	var r = edges.rEdge;
+	var ol = edges.otherLEdge;
+	var or = edges.otherREdge;
 	var my = edges.middleY;
 
 	var crossingTop = (t < ob) && !(b < ob);
 	var crossingBottom = (b >= ot) && !(t >= ot);
 	var insideY = (b > ot) && (t > ot) && (t < ob) && (b < ob);
+	var insideX = (r > ol) && (l > ol) && (l < or) && (r < or);
 
 	var collYEdge = undefined;
 	var collYEdgeStr = '';
@@ -105,9 +121,14 @@ Rectangle.prototype._checkYCollision = function(edges) {
 		} else if (crossingTop) {
 			collYEdge = ob;
 			collYEdgeStr = 't';
-		} else if (insideY) {
-			collYEdge = (my - t < b - my) ? t : b;
-			collYEdgeStr = 'j';
+		} else if (insideY && insideX) {
+			if (my - t < b - my) {
+				collXEdge = t;
+				collXEdgeStr = 't';
+			} else {
+				collXEdge = b;
+				collXEdgeStr = 'b';
+			}
 		}
 	}
 	return {
@@ -131,9 +152,9 @@ Rectangle.prototype.__collidesOnYAxis = function(edges) {
 	var ob = edges.otherBEdge;
 //	var crossingBottom = (b > ot) && !(t > ot) && (t < ob) && (b < ob);
 //	var crossingTop = (b > ot) && (t > ot) && (t < ob) && !(b < ob);
-	var crossingTop = (t < ob) && !(b < ob);
-	var crossingBottom = (b > ot) && !(t > ot);
-	var inside = (b > ot) && (t > ot) && (t < ob) && (b < ob);
+	var crossingTop = (t <= ob) && !(b <= ob);
+	var crossingBottom = (b >= ot) && !(t >= ot);
+	var inside = (b >= ot) && (t >= ot) && (t <= ob) && (b <= ob);
 	return (crossingTop || crossingBottom || inside);
 }
 
