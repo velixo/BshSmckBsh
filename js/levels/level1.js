@@ -1,8 +1,25 @@
-function Level1 () {
+function Level() {
 	this.components = [];
+	this.update = function(deltatime) {
+		for (var i = 0; i < this.components.length; i++) {
+			this.components[i].update(deltatime);
+		};
+	};
+
+	this.draw = function() {
+		for (var i = 0; i < this.components.length; i++) {
+			this.components[i].draw();
+		};
+	};
+}
+
+function Level1 () {
+	//this.components = [];
+	Level.call(this);
 	this.components.push(new Floor(30));
 	this.components.push(new Wall('l', 30));
 	this.components.push(new Wall('r', 30));
+
 	this.components.push(new Rectangle(100, 200, 250, 40));
 	this.components.push(new Rectangle(120, 700, 40, 250));
 	this.components.push(new Rectangle(200, 220, 40, 280));
@@ -29,14 +46,21 @@ function Level1 () {
 	console.log("Level 1 loaded");
 }
 
-Level1.prototype.update = function(deltatime) {
-	for (var i = 0; i < this.components.length; i++) {
-		this.components[i].update(deltatime);
-	};
-};
+function Level2 () {
+	Level.call(this);
+	this.components.push(new Floor(30));
+	this.components.push(new Wall('l', 30));
+	this.components.push(new Wall('r', 30));
 
-Level1.prototype.draw = function() {
-	for (var i = 0; i < this.components.length; i++) {
-		this.components[i].draw();
-	};
-};
+	this.components.push(new Rectangle(120, 0, 300, 800));
+	this.components.push(new Rectangle(480, 0, 300, 800));
+	this.components.push(new Rectangle(400, 0, 100, 600));
+
+//	this.components.push(new Rectangle(120, 0, 40, 950));
+//	this.components.push(new Rectangle(240, 0, 80, 950));
+//	this.components.push(new Rectangle(400, 0, 120, 950));
+//	this.components.push(new Rectangle(600, 0, 160, 950));
+//	this.components.push(new Rectangle(840, 0, 200, 950));
+//	this.components.push(new Rectangle(1120, 0, 240, 950));
+//	this.components.push(new Rectangle(1440, 0, 280, 950));
+}
