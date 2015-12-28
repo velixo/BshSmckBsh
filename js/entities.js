@@ -56,6 +56,31 @@ Blob.prototype.update = function(deltatime) {
 	this._updateMovement(deltatime);
 }
 
+Blob.prototype.draw = function() {
+	if (this.health > 0) {
+		drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, '#0d0', 1);
+	} else {
+		var currTime = performance.now();
+		if (currTime < this.deathFadeOutEnd) {
+			var fadeProgress = (currTime - this.deathFadeOutStart) / (this.deathFadeOutEnd - this.deathFadeOutStart);
+			var col = colorFloatToHex(1 - fadeProgress, 0, 0);
+			drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, col, 1-fadeProgress);
+		} else {
+			world.remove(this);
+			this.dead = true;
+		}
+	}
+}
+
+Blob.prototype.destroy = function() {
+	if (this.health > 0) {
+		this.health = -1;
+		this.deathFadeOutStart = performance.now();
+		this.deathFadeOutEnd = this.deathFadeOutStart + 700;
+		console.log(this.name + " destroyed");
+	};
+}
+
 Blob.prototype._readCollisions = function(deltatime) {
 	this.lBlockedX = undefined;
 	this.rBlockedX = undefined;
@@ -88,31 +113,6 @@ Blob.prototype._updateMovement = function(deltatime) {
 	this.yVel += this.gravity;
 	this.x += this.xVel * deltatime;
 	this.y += this.yVel * deltatime;
-}
-
-Blob.prototype.draw = function() {
-	if (this.health > 0) {
-		drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, '#0d0', 1);
-	} else {
-		var currTime = performance.now();
-		if (currTime < this.deathFadeOutEnd) {
-			var fadeProgress = (currTime - this.deathFadeOutStart) / (this.deathFadeOutEnd - this.deathFadeOutStart);
-			var col = colorFloatToHex(1 - fadeProgress, 0, 0);
-			drawCircle(this.x + this.width/2, this.y + this.width/2, this.width/2, col, 1-fadeProgress);
-		} else {
-			world.remove(this);
-			this.dead = true;
-		}
-	}
-}
-
-Blob.prototype.destroy = function() {
-	if (this.health > 0) {
-		this.health = -1;
-		this.deathFadeOutStart = performance.now();
-		this.deathFadeOutEnd = this.deathFadeOutStart + 700;
-		console.log(this.name + " destroyed");
-	};
 }
 
 Blob.prototype.__readCollisionEvent = function(collInfo, deltatime) {
@@ -220,41 +220,6 @@ Player.prototype._readCollisions = function() {
 	}
 }
 
-Player.prototype.__readCollisionEvent = function(collInfo) {
-	var collEdgeStr = collInfo.collidedEdge;
-	if (collEdgeStr.indexOf('l') !== -1) {
-		if (this.lBlockedX !== undefined) {
-			this.lBlockedX = (this.lBlockedX > collInfo.collidedX) ? collInfo.collidedX : this.lBlockedX;
-		} else {
-			this.lBlockedX = collInfo.collidedX;
-		}
-	}
-
-	if (collEdgeStr.indexOf('r') !== -1) {
-		if (this.rBlockedX !== undefined) {
-			this.rBlockedX = (this.rBlockedX < collInfo.collidedX) ? collInfo.collidedX : this.rBlockedX;
-		} else {
-			this.rBlockedX = collInfo.collidedX;
-		}
-	}
-
-	if (collEdgeStr.indexOf('t') !== -1) {
-		if (this.tBlockedY !== undefined) {
-			this.tBlockedY = (this.tBlockedY < collInfo.collidedY) ? collInfo.collidedY : this.tBlockedY;
-		} else {
-			this.tBlockedY = collInfo.collidedY;
-		}
-	}
-
-	if (collEdgeStr.indexOf('b') !== -1) {
-		if (this.bBlockedY !== undefined) {
-			this.bBlockedY = (this.bBlockedY > collInfo.collidedY) ? collInfo.collidedY : this.bBlockedY;
-		} else {
-			this.bBlockedY = collInfo.collidedY;
-		}
-	}
-}
-
 Player.prototype._readInput = function() {
 	this.touchingSurface = this.__checkTouchingSurface();
 	this.xDir = 0;
@@ -313,6 +278,41 @@ Player.prototype._applyMovementY = function(deltatime) {
 		this.yVel += this.gravity;
 	}
 	this.y += this.yVel * deltatime;
+}
+
+Player.prototype.__readCollisionEvent = function(collInfo) {
+	var collEdgeStr = collInfo.collidedEdge;
+	if (collEdgeStr.indexOf('l') !== -1) {
+		if (this.lBlockedX !== undefined) {
+			this.lBlockedX = (this.lBlockedX > collInfo.collidedX) ? collInfo.collidedX : this.lBlockedX;
+		} else {
+			this.lBlockedX = collInfo.collidedX;
+		}
+	}
+
+	if (collEdgeStr.indexOf('r') !== -1) {
+		if (this.rBlockedX !== undefined) {
+			this.rBlockedX = (this.rBlockedX < collInfo.collidedX) ? collInfo.collidedX : this.rBlockedX;
+		} else {
+			this.rBlockedX = collInfo.collidedX;
+		}
+	}
+
+	if (collEdgeStr.indexOf('t') !== -1) {
+		if (this.tBlockedY !== undefined) {
+			this.tBlockedY = (this.tBlockedY < collInfo.collidedY) ? collInfo.collidedY : this.tBlockedY;
+		} else {
+			this.tBlockedY = collInfo.collidedY;
+		}
+	}
+
+	if (collEdgeStr.indexOf('b') !== -1) {
+		if (this.bBlockedY !== undefined) {
+			this.bBlockedY = (this.bBlockedY > collInfo.collidedY) ? collInfo.collidedY : this.bBlockedY;
+		} else {
+			this.bBlockedY = collInfo.collidedY;
+		}
+	}
 }
 
 Player.prototype.__checkTouchingSurface = function () {
